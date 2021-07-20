@@ -9,6 +9,8 @@
     },
 
     "permissions": ["storage", "activeTab", "scripting"],
+    
+    "options_page": "options.html",
 
     "action": {
         "default_popup": "popup.html",
