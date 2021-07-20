@@ -4,9 +4,9 @@ const presetButtonColors = ["#3aa757", "#e8453c", "#f9bb2d", "#4688f1"];
 
 // Reacts to a button click by marking the selected button and saving
 // the selection
-function handleButtonClick(event) {
+function handleButtonClick(event: MouseEvent) {
   // Remove styling from the previously selected color
-  let current = event.target.parentElement.querySelector(
+  let current = (<HTMLInputElement>event.target).parentElement!.querySelector(
     `.${selectedClassName}`
   );
   if (current && current !== event.target) {
@@ -14,13 +14,13 @@ function handleButtonClick(event) {
   }
 
   // Mark the button as selected
-  let color = event.target.dataset.color;
-  event.target.classList.add(selectedClassName);
+  let color = (<HTMLInputElement>event.target).dataset.color;
+  (<HTMLInputElement>event.target).classList.add(selectedClassName);
   chrome.storage.sync.set({ color });
 }
 
 // Add a button to the page for each supplied color
-function constructOptions(buttonColors) {
+function constructOptions(buttonColors: string[]) {
   chrome.storage.sync.get("color", (data) => {
     let currentColor = data.color;
     // For each color we were provided…
@@ -37,7 +37,7 @@ function constructOptions(buttonColors) {
 
       // …and register a listener for when that button is clicked
       button.addEventListener("click", handleButtonClick);
-      page.appendChild(button);
+      page!.appendChild(button);
     }
   });
 }
