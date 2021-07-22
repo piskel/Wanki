@@ -7,10 +7,7 @@ let initialConfiguration =
     hostname: "localhost",
     port: "8765"
   },
-
-  deckName: "",
-  targetLanguage:"" // 	ISO 2-digit code https://www.w3schools.com/tags/ref_language_codes.asp
-
+  mappedDecks:{}, // Will map decks to their respective languages
 }
 
 // Event used to initialize an extension during installation.

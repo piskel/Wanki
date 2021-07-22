@@ -21,15 +21,11 @@ function connectAnki()
     redirect: 'follow'
   };
 
-  try {
-    fetch("http://localhost:8765", requestOptions)
-    .then(response => response.text())
-    .then(result => console.log(result))
-    .catch(error => console.log('error', error));
+  fetch("http://localhost:8765", requestOptions)
+  .then(response => response.text())
+  .then(result => console.log(result))
+  .catch(error => console.log('error', error));
 
-  } catch (error) {
-    console.error("Woops");  
-  }
 }
 
 

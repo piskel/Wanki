@@ -3,14 +3,16 @@
     "start": "npm run build:live",
     "build": "tsc -p . && copyfiles -e \"./**/*.ts\" --error --up 1 ./src/**/* ./dist",
     "build:live": "nodemon --watch src --ext * --exec \"npm run clean:dist && npm run build || exit 1\"",
-    "clean:dist":"rimraf ./dist/"
+    "clean:dist": "rimraf ./dist/"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.148",
     "copyfiles": "^2.4.1",
     "nodemon": "^2.0.12",
     "rimraf": "^3.0.2",
-    "typescript": "^4.3.5"
+    "typescript": "^4.3.5",
+    "webpack": "^5.46.0",
+    "webpack-cli": "^4.7.2"
   },
   "name": "wanki",
   "version": "0.1.0",
@@ -53,6 +55,7 @@
     "global-dirs": "^2.1.0",
     "got": "^9.6.0",
     "graceful-fs": "^4.2.6",
+    "hanzi-tools": "^1.2.25",
     "has-flag": "^3.0.0",
     "has-yarn": "^2.1.0",
     "http-cache-semantics": "^4.1.0",
