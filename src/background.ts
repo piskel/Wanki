@@ -1,13 +1,26 @@
-let color = '#3aa757';
+
+// Default configuration
+let initialConfiguration = 
+{
+  ankiConnect:
+  {
+    hostname: "localhost",
+    port: "8765"
+  },
+
+  deckName: "",
+  targetLanguage:"" // 	ISO 2-digit code https://www.w3schools.com/tags/ref_language_codes.asp
+
+}
 
 // Event used to initialize an extension during installation.
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.sync.set({ color });
-  console.log('Default background color set to %cgreen', `color: ${color}`);
+  chrome.storage.sync.set(initialConfiguration);
 
-  chrome.contextMenus.create({
-    "id": "sampleContextMenu",
-    "title": "Sample Context Menu",
-    "contexts": ["selection"]
-  });
+});
+
+// Listens for messages
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => 
+{
+
 });
