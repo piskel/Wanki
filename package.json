@@ -2,12 +2,14 @@
   "scripts": {
     "start": "npm run build:live",
     "build": "tsc -p . && copyfiles -e \"./**/*.ts\" --error --up 1 ./src/**/* ./dist",
-    "build:live": "nodemon --watch src --ext * --exec \"npm run build\""
+    "build:live": "nodemon --watch src --ext * --exec \"npm run clean:dist && npm run build || exit 1\"",
+    "clean:dist":"rimraf ./dist/"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.148",
     "copyfiles": "^2.4.1",
     "nodemon": "^2.0.12",
+    "rimraf": "^3.0.2",
     "typescript": "^4.3.5"
   },
   "name": "wanki",
