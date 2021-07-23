@@ -24,10 +24,11 @@ function getWordList()
 
     let wordList: string[] = []
 
-
-    fullTextFiltered!.forEach(element => {
-        wordList.concat(hanzi.segment(element));
-    });
+    if (fullTextFiltered != null){
+        fullTextFiltered.forEach(element => {
+            wordList.concat(hanzi.segment(element));
+        });
+    }
     
     return wordList;
 }
