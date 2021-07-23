@@ -14,8 +14,7 @@
             "matches": ["http://*/*", "https://*/*"],
             "run_at": "document_end",
             "js":[
-                "./contentScript/contentScript.js",
-                "../../node_modules/hanzi-tools/index.js"
+                "./contentScript/contentScript.js"
             ]
         }
     ],

@@ -1,4 +1,9 @@
 
+var hanzi = require("hanzi");
+//Initiate
+hanzi.start();
+
+
 console.log("Content script started");
 
 // TODO: Add support for returning subtags (lang+script+region)
@@ -16,8 +21,15 @@ function getWordList()
     // TODO: Find chinese word segmentation library
     // 
     let fullTextFiltered = fullTextRaw.match(/[\u4E00-\u9FA5]+/g);
+
+    let wordList: string[] = []
+
+
+    fullTextFiltered!.forEach(element => {
+        wordList.concat(hanzi.segment(element));
+    });
     
-    return fullTextFiltered;
+    return wordList;
 }
 
 function addWordTags()
