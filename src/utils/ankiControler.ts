@@ -1,5 +1,5 @@
 
-type AnkiRequestAction = "deckNamesAndIds"|"findCards" | "getEaseFactors" | "cardsInfo" | "createDeck" | "getDecks" | "guiAddCards";
+type AnkiRequestAction = "deckNamesAndIds" | "findCards" | "getEaseFactors" | "cardsInfo" | "createDeck" | "getDecks" | "guiAddCards";
 
 var AnkiConnectVersion = 6
 
@@ -22,48 +22,37 @@ export default class AnkiController
     // NETWORK FUNCTIONS ////////////////////////////////////////
     /////////////////////////////////////////////////////////////
 
-    // static getAnkiURL(callback:()=>void))
-    // {
-    //     chrome.storage.sync.get(["ankiConnect"], (result, callback) =>
-    //     {
-    //         console.log(result)
-    //         let url = `http://${result['hostname']}:${result['port']}`
-    //         callback(url)
-    //     });
-    //     // return `http://${connectInfos['hostname']}:${connectInfos['port']}`
-    // }
-
     // TODO: Use Chrome Storage
     static getAnkiURL()
     {
-        
+
         return `http://localhost:8765`
     }
 
-    static sendRequest(request: AnkiRequest, callback:(results: AnkiResult)=>void)
+    static sendRequest(request: AnkiRequest, callback: (results: AnkiResult) => void)
     {
         var myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
-      
+
         var raw = JSON.stringify(request);
-      
-        var requestOptions: RequestInit  = {
-          method: 'POST',
-          headers: myHeaders,
-          body: raw,
-          redirect: 'follow'
+
+        var requestOptions: RequestInit = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
         };
-        
+
 
         fetch(this.getAnkiURL(), requestOptions)
-        .then(response => response.json() as Promise<AnkiResult>)
-        .then(callback)
-        .catch(this.errorHandler);
+            .then(response => response.json() as Promise<AnkiResult>)
+            .then(callback)
+            .catch(this.errorHandler);
         // return jsonResponse;
     }
 
 
-    static errorHandler(error:any)
+    static errorHandler(error: any)
     {
         console.log('error', error)
     }
@@ -72,11 +61,11 @@ export default class AnkiController
     // ANKI CONNECT FUNCTIONS ///////////////////////////////////
     /////////////////////////////////////////////////////////////
 
-    static findCard(query: string, callback:(results: AnkiResult)=>void)
+    static findCard(query: string, callback: (results: AnkiResult) => void)
     {
         let request: AnkiRequest =
         {
-            action:"findCards",
+            action: "findCards",
             params:
             {
                 query: query
@@ -86,11 +75,11 @@ export default class AnkiController
         this.sendRequest(request, callback)
     }
 
-    static cardsInfo(cards: number[], callback:(results: AnkiResult)=>void)
+    static cardsInfo(cards: number[], callback: (results: AnkiResult) => void)
     {
         let request: AnkiRequest =
         {
-            action:"cardsInfo",
+            action: "cardsInfo",
             params:
             {
                 cards: cards
@@ -100,11 +89,11 @@ export default class AnkiController
         this.sendRequest(request, callback)
     }
 
-    static getEaseFactor(cards:number[], callback:(results: AnkiResult)=>void)
+    static getEaseFactor(cards: number[], callback: (results: AnkiResult) => void)
     {
         let request: AnkiRequest =
         {
-            action:"getEaseFactors",
+            action: "getEaseFactors",
             params:
             {
                 cards: cards
@@ -114,21 +103,21 @@ export default class AnkiController
         this.sendRequest(request, callback)
     }
 
-    static deckNamesAndIds(callback:(results: AnkiResult)=>void)
+    static deckNamesAndIds(callback: (results: AnkiResult) => void)
     {
         let request: AnkiRequest =
         {
-            action:"deckNamesAndIds",
+            action: "deckNamesAndIds",
             version: AnkiConnectVersion
         }
         this.sendRequest(request, callback)
     }
 
-    static createDeck(deck:string, callback:(results: AnkiResult)=>void)
+    static createDeck(deck: string, callback: (results: AnkiResult) => void)
     {
         let request: AnkiRequest =
         {
-            action:"createDeck",
+            action: "createDeck",
             params:
             {
                 deck: deck
@@ -138,36 +127,34 @@ export default class AnkiController
         this.sendRequest(request, callback)
     }
 
-    static guiAddCards(deckName:string, modelName:string, fields:{[field:string]:string}, options:{[option:string]:any}, tags:string[],callback:(results: AnkiResult)=>void)
+    static guiAddCards(deckName: string, modelName: string, fields: { [field: string]: string }, options: { [option: string]: any }, tags: string[], callback: (results: AnkiResult) => void)
     {
         let request: AnkiRequest =
         {
-            action:"guiAddCards",
+            action: "guiAddCards",
             params:
             {
-                note:{
+                note: {
                     deckName: deckName,
-                    modelName:modelName,
-                    fields:fields,
-                    options:options,
-                    tags:tags
+                    modelName: modelName,
+                    fields: fields,
+                    options: options,
+                    tags: tags
                 }
             },
             version: AnkiConnectVersion
         }
         this.sendRequest(request, callback)
     }
-    
+
     /////////////////////////////////////////////////////////////
     // WANKI SPECIALIZED FUNCTIONS //////////////////////////////
     /////////////////////////////////////////////////////////////
 
-    static findWordInDeck(word:string, deck:string, field:string, callback:(results: AnkiResult)=>void)
+    static findWordInDeck(word: string, deck: string, field: string, callback: (results: AnkiResult) => void)
     {
         let query = `deck:"${deck}" ${field}:"${word}"`
         this.findCard(query, callback);
     }
-
-    // Find by fields : "deck:<deck_name> <word_field>:<word>"
 
 }

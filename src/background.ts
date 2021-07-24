@@ -1,10 +1,12 @@
 console.log("Background script started")
-import AnkiController from "./utils/ankiControler";
 var hanzi = require('hanzi');
 hanzi.start()
 
 
+var storageCache = {}
 
+
+// TODO: Make interface for configuration
 
 // Default configuration
 let initialConfiguration =
@@ -18,17 +20,12 @@ let initialConfiguration =
   // mappedDecks:{}, // Will map decks to their respective languages
 }
 
-var storageCache = {}
-
-
-
 // Event used to initialize an extension during installation.
 chrome.runtime.onInstalled.addListener(() =>
 {
   chrome.storage.sync.set({ config: initialConfiguration });
 });
 
-chrome.windows.onRemoved.addListener
 
 /**
  * Segments Chinese sentences into words
@@ -48,12 +45,11 @@ function segmentSentences(sentenceList: string[])
   return deconstructed;
 }
 
-function getWordsEase(wordList: string[])
-{
-
-}
-
-
+/**
+ * The onMessage listener for the background script
+ * @param message Message received
+ * @param port Port on which the message was received
+ */
 function messageListener(message: any, port: chrome.runtime.Port)
 {
   console.log("Message from content script : ", message);
@@ -62,6 +58,9 @@ function messageListener(message: any, port: chrome.runtime.Port)
   {
     case 'segment_sentences':
       let segmentedSentences = segmentSentences(message.sentenceList)
+
+      // TODO: Search for the word's ease on Anki
+
       port.postMessage({ method: 'segment_sentences_result', result: segmentedSentences })
       break;
 
@@ -70,13 +69,19 @@ function messageListener(message: any, port: chrome.runtime.Port)
   }
 }
 
+/**
+ * The onConnect listener for the background script.
+ * @param port 
+ */
 function onConnectListener(port: chrome.runtime.Port)
 {
   console.log("Connected to content script.");
   port.onMessage.addListener(messageListener);
 }
 
-
+/**
+ * Initializes the background script
+ */
 function init()
 {
   chrome.storage.sync.get(null, (result) =>
@@ -90,13 +95,3 @@ function init()
 
 init();
 
-AnkiController.findWordInDeck("*", "xiehanzi HSK 3.0::HSK 1", "Traditional", (results) =>
-{
-  console.log(results)
-  
-  AnkiController.cardsInfo(results.result, (results) =>
-  {
-    console.log(results)
-  })
-  
-})
