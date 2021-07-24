@@ -63,6 +63,7 @@ function preparePage()
         {
             let element = elementList.item(i)
             
+            // TODO: Check for better filtering when tag has child node
             if (element == null || element.children.length != 0 || element.textContent == null || element.classList.contains("wanki")) continue;
 
             let matches = element.textContent.match(/[\u4E00-\u9FA5]+/g)
@@ -100,15 +101,13 @@ port.onMessage.addListener(message =>
 });
 
 
-function init()
+function contentScriptInit()
 {
     let sentenceList = preparePage()
     port.postMessage({ method: 'segment_sentences', sentenceList: sentenceList })
     
 }
 
-window.onload = init
-
-
-
-
+// TODO: Make sure this gets called only once !!
+// window.onload = contentScriptInit
+contentScriptInit()

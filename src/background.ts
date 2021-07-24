@@ -1,22 +1,26 @@
+import { AnkiRequest, WankiConfiguration } from "./typedef";
+import AnkiController from "./utils/ankiControler";
+import Wanki from "./wanki";
+
 console.log("Background script started")
 var hanzi = require('hanzi');
 hanzi.start()
 
 
-var storageCache = {}
+var storageCache: WankiConfiguration
 
 
 // TODO: Make interface for configuration
 
 // Default configuration
-let initialConfiguration =
+let initialConfiguration: WankiConfiguration =
 {
   ankiConnect:
   {
     hostname: "localhost",
     port: "8765"
   },
-  deckName: ""
+  deckName: "Wanki"
   // mappedDecks:{}, // Will map decks to their respective languages
 }
 
@@ -34,7 +38,7 @@ chrome.runtime.onInstalled.addListener(() =>
  */
 function segmentSentences(sentenceList: string[])
 {
-  let deconstructed: String[][] = []
+  let deconstructed: string[][] = []
 
   sentenceList.forEach(sentence =>
   {
@@ -45,12 +49,24 @@ function segmentSentences(sentenceList: string[])
   return deconstructed;
 }
 
+function segmentedToSet(segmentedSentences:string[][])
+{
+  let wordSet: Set<string> = new Set()
+  segmentedSentences.forEach(sentence => {
+    sentence.forEach(word => {
+      wordSet.add(word);
+    });
+  });
+  return wordSet;
+}
+
+
 /**
  * The onMessage listener for the background script
  * @param message Message received
  * @param port Port on which the message was received
  */
-function messageListener(message: any, port: chrome.runtime.Port)
+async function messageListener(message: any, port: chrome.runtime.Port)
 {
   console.log("Message from content script : ", message);
 
@@ -59,7 +75,10 @@ function messageListener(message: any, port: chrome.runtime.Port)
     case 'segment_sentences':
       let segmentedSentences = segmentSentences(message.sentenceList)
 
-      // TODO: Search for the word's ease on Anki
+      let wordSet = segmentedToSet(segmentedSentences);
+      console.log(wordSet)
+
+      console.log(await AnkiController.findAllWordsInDeckAsync(wordSet, "xiehanzi HSK 3.0", "Traditional"));
 
       port.postMessage({ method: 'segment_sentences_result', result: segmentedSentences })
       break;
@@ -73,7 +92,7 @@ function messageListener(message: any, port: chrome.runtime.Port)
  * The onConnect listener for the background script.
  * @param port 
  */
-function onConnectListener(port: chrome.runtime.Port)
+async function onConnectListener(port: chrome.runtime.Port)
 {
   console.log("Connected to content script.");
   port.onMessage.addListener(messageListener);
@@ -82,16 +101,15 @@ function onConnectListener(port: chrome.runtime.Port)
 /**
  * Initializes the background script
  */
-function init()
+function backgroundScriptInit()
 {
-  chrome.storage.sync.get(null, (result) =>
+  chrome.storage.sync.get(null, async (result) =>
   {
-    storageCache = result;
-
+    storageCache = result as WankiConfiguration;
     chrome.runtime.onConnect.addListener(onConnectListener);
   });
 }
 
 
-init();
+backgroundScriptInit();
 

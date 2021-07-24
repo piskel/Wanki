@@ -1,20 +1,8 @@
+import { AnkiRequest, AnkiResult } from "../typedef";
 
-type AnkiRequestAction = "deckNamesAndIds" | "findCards" | "getEaseFactors" | "cardsInfo" | "createDeck" | "getDecks" | "guiAddCards";
 
 var AnkiConnectVersion = 6
 
-interface AnkiRequest
-{
-    action: AnkiRequestAction
-    version: number;
-    params?: {}
-}
-
-interface AnkiResult
-{
-    result: any[];
-    error: string | null;
-}
 
 export default class AnkiController
 {
@@ -51,17 +39,35 @@ export default class AnkiController
         // return jsonResponse;
     }
 
+    static async sendRequestAsync(request: AnkiRequest)
+    {
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        var raw = JSON.stringify(request);
+
+        var requestOptions: RequestInit = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        };
+        let response = await fetch(this.getAnkiURL(), requestOptions)
+
+        return await response.json();
+    }
+
 
     static errorHandler(error: any)
     {
-        console.log('error', error)
+        console.log('error ', error)
     }
 
     /////////////////////////////////////////////////////////////
     // ANKI CONNECT FUNCTIONS ///////////////////////////////////
     /////////////////////////////////////////////////////////////
 
-    static findCard(query: string, callback: (results: AnkiResult) => void)
+    static findCards(query: string, callback: (results: AnkiResult) => void)
     {
         let request: AnkiRequest =
         {
@@ -73,6 +79,20 @@ export default class AnkiController
             version: AnkiConnectVersion
         }
         this.sendRequest(request, callback)
+    }
+
+    static async findCardsAsync(query: string)
+    {
+        let request: AnkiRequest =
+        {
+            action: "findCards",
+            params:
+            {
+                query: query
+            },
+            version: AnkiConnectVersion
+        }
+        return await this.sendRequestAsync(request)
     }
 
     static cardsInfo(cards: number[], callback: (results: AnkiResult) => void)
@@ -89,6 +109,20 @@ export default class AnkiController
         this.sendRequest(request, callback)
     }
 
+    static async cardsInfoAsync(cards: number[])
+    {
+        let request: AnkiRequest =
+        {
+            action: "cardsInfo",
+            params:
+            {
+                cards: cards
+            },
+            version: AnkiConnectVersion
+        }
+        return await this.sendRequestAsync(request)
+    }
+
     // TODO: For mass query, using callback does not scale. Use async/await
     static getEaseFactor(cards: number[], callback: (results: AnkiResult) => void)
     {
@@ -102,6 +136,20 @@ export default class AnkiController
             version: AnkiConnectVersion
         }
         this.sendRequest(request, callback)
+    }
+
+    static async getEaseFactorAsync(cards: number[])
+    {
+        let request: AnkiRequest =
+        {
+            action: "getEaseFactors",
+            params:
+            {
+                cards: cards
+            },
+            version: AnkiConnectVersion
+        }
+        return await this.sendRequestAsync(request)
     }
 
     static deckNamesAndIds(callback: (results: AnkiResult) => void)
@@ -152,10 +200,33 @@ export default class AnkiController
     // WANKI SPECIALIZED FUNCTIONS //////////////////////////////
     /////////////////////////////////////////////////////////////
 
-    static findWordInDeck(word: string, deck: string, field: string, callback: (results: AnkiResult) => void)
+    static findWordsInDeck(word: string, deck: string, field: string, callback: (results: AnkiResult) => void)
     {
         let query = `deck:"${deck}" ${field}:"${word}"`
-        this.findCard(query, callback);
+        this.findCards(query, callback);
+        
+    }
+
+    static async findWordsInDeckAsync(word: string, deck: string, field: string)
+    {
+        let query = `deck:"${deck}" ${field}:"${word}"`;
+        return await this.findCardsAsync(query);
+
+    }
+
+    static async findAllWordsInDeckAsync(wordSet: Set<string>, deck:string, field:string)
+    {
+        let wordInfos: {[key:string]:any} = {}
+
+        let searchRegex = "re:(\\b"
+        searchRegex += Array.from(wordSet).join('\\b|\\b')
+        searchRegex += "\b)"
+
+        let wordsDeck = (await this.findWordsInDeckAsync(searchRegex, deck, field)).result;
+        console.log(wordsDeck)
+        console.log(await this.cardsInfoAsync(wordsDeck))
+
+        return wordInfos;
     }
 
 }
