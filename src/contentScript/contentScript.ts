@@ -57,7 +57,7 @@ function preparePage()
 
     tagWhitelist.forEach(tagName =>
     {
-        let elementList = document.body.getElementsByTagName(tagName);
+        let elementList = document.getElementsByTagName(tagName);
 
         for (let i = 0; i < elementList.length; i++)
         {
@@ -100,9 +100,15 @@ port.onMessage.addListener(message =>
 });
 
 
-let sentenceList = preparePage()
+function init()
+{
+    let sentenceList = preparePage()
+    port.postMessage({ method: 'segment_sentences', sentenceList: sentenceList })
+    
+}
 
-port.postMessage({ method: 'segment_sentences', sentenceList: sentenceList })
+window.onload = init
+
 
 
 
