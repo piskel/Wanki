@@ -1,5 +1,5 @@
 
-type AnkiRequestAction = "findCards" | "getEaseFactors" | "cardsInfo" | "createDeck" | "getDecks" | "guiAddCards";
+type AnkiRequestAction = "deckNamesAndIds"|"findCards" | "getEaseFactors" | "cardsInfo" | "createDeck" | "getDecks" | "guiAddCards";
 
 var AnkiConnectVersion = 6
 
@@ -7,7 +7,7 @@ interface AnkiRequest
 {
     action: AnkiRequestAction
     version: number;
-    params: {}
+    params?: {}
 }
 
 interface AnkiResult
@@ -108,6 +108,50 @@ export default class AnkiController
             params:
             {
                 cards: cards
+            },
+            version: AnkiConnectVersion
+        }
+        this.sendRequest(request, callback)
+    }
+
+    static deckNamesAndIds(callback:(results: AnkiResult)=>void)
+    {
+        let request: AnkiRequest =
+        {
+            action:"deckNamesAndIds",
+            version: AnkiConnectVersion
+        }
+        this.sendRequest(request, callback)
+    }
+
+    static createDeck(deck:string, callback:(results: AnkiResult)=>void)
+    {
+        let request: AnkiRequest =
+        {
+            action:"createDeck",
+            params:
+            {
+                deck: deck
+            },
+            version: AnkiConnectVersion
+        }
+        this.sendRequest(request, callback)
+    }
+
+    static guiAddCards(deckName:string, modelName:string, fields:{[field:string]:string}, options:{[option:string]:any}, tags:string[],callback:(results: AnkiResult)=>void)
+    {
+        let request: AnkiRequest =
+        {
+            action:"guiAddCards",
+            params:
+            {
+                note:{
+                    deckName: deckName,
+                    modelName:modelName,
+                    fields:fields,
+                    options:options,
+                    tags:tags
+                }
             },
             version: AnkiConnectVersion
         }
