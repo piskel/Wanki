@@ -29,13 +29,15 @@ function addWordTags(segmentedSentences: string[][])
         let segmentedSentence = segmentedSentences[i]
         let sentenceElement = document.getElementById(`wanki_sentence_${i}`);
 
+        if (sentenceElement == null) continue;
+
         let reconstructedSentence = ""
         segmentedSentence.forEach(word =>
         {
             reconstructedSentence += `<span class="wanki wanki_word wanki_word_${word}" id="wanki_word_${wordNo}" style="color:green !important">${word}</span>`;
+            
             wordNo++;
         });
-
         // TODO: Error handling if the sentence tag is not found
         sentenceElement!.innerHTML = reconstructedSentence;
     }
@@ -59,9 +61,9 @@ function preparePage()
 
         for (let i = 0; i < elementList.length; i++)
         {
-            let element = elementList.item(i)!
-
-            if (element.children.length != 0 || element.textContent == null || element.classList.contains("wanki")) continue;
+            let element = elementList.item(i)
+            
+            if (element == null || element.children.length != 0 || element.textContent == null || element.classList.contains("wanki")) continue;
 
             let matches = element.textContent.match(/[\u4E00-\u9FA5]+/g)
             if (matches == null) continue;
@@ -70,6 +72,7 @@ function preparePage()
             {
                 sentenceList[sentenceNo] = a
                 let result = `<span class="wanki wanki_sentence" id="wanki_sentence_${sentenceNo}">${a}</span>`
+                
                 sentenceNo++;
                 return result;
 

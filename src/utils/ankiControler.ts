@@ -89,6 +89,7 @@ export default class AnkiController
         this.sendRequest(request, callback)
     }
 
+    // TODO: For mass query, using callback does not scale. Use async/await
     static getEaseFactor(cards: number[], callback: (results: AnkiResult) => void)
     {
         let request: AnkiRequest =
