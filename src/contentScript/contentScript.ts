@@ -1,6 +1,6 @@
-import { strict } from "assert/strict";
 
 console.log("Content script started");
+
 
 // TODO: Add support for returning subtags (lang+script+region)
 function getISOCode()
@@ -10,67 +10,89 @@ function getISOCode()
     return subtags[0];
 }
 
-/**
- * Returns the list of Chinese text found on the page
- * @returns A string array containing the texts.
- */
-function getPhraseList()
+
+let tagWhitelist = ["h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "td", "label", "div", "span", "q"]
+
+
+
+interface SentenceDetails
 {
-    let fullTextRaw = document.body.innerText;
-    let fullTextFiltered = fullTextRaw.match(/[\u4E00-\u9FA5]+/g);
-    if(fullTextFiltered == null) fullTextFiltered = [];
-    console.log("Nb sentences found : " + fullTextFiltered.length)
-    return fullTextFiltered;
+    value: string;
+    deconstructed?: string[];
+    tag: string;
+    tagIndex: number;
+    position: number;
 }
 
-// TODO: Should take in a dictionnary with information about each words
-// (%learned, frequency, etc...)
-function addWordTags(deconstructedList: string[][])
+function addWordTags(segmentedSentences: string[][])
 {
-    let innerHTML = document.body.innerHTML;
-    
-    console.log("Nb of deconstructed sentences : ", deconstructedList.length)
-
-    // FIXME: Segmentation must be done per case for each sentence
-    let index = -1
-    deconstructedList.forEach(deconstructed => {
-        let reconstructed = ""
+    let wordNo = 0
+    for(let i = 0; i < segmentedSentences.length; i++)
+    {   
+        let segmentedSentence = segmentedSentences[i]
+        let sentenceElement = document.getElementById(`wanki_sentence_${i}`);
         
-        deconstructed.forEach(word => {
-            reconstructed += "<span class=\"wanki\">" + word + "</span>";
+        let reconstructedSentence = ""
+        segmentedSentence.forEach(word => {
+            reconstructedSentence += `<span class="wanki wanki_word wanki_word_${word}" id="wanki_word_${wordNo}" style="color:green !important">${word}</span>`;
+            wordNo++;
         });
 
-        innerHTML = innerHTML.replace(/(?<!\<span.*class\=\"wanki\".*\>[\u4E00-\u9FFF]*)[\u4E00-\u9FFF]+/, reconstructed);
+        // TODO: Error handling if the sentence tag is not found
+        sentenceElement!.innerHTML = reconstructedSentence;
+    }
+}
+
+function preparePage()
+{
+    let sentenceList: string[] = []
+    let sentenceNo = 0
+
+    tagWhitelist.forEach(tagName => {
+        let elementList = document.body.getElementsByTagName(tagName);
+
+        for(let i = 0; i < elementList.length; i++)
+        {
+            let element = elementList.item(i)!
+            
+            if(element.children.length != 0 || element.textContent == null || element.classList.contains("wanki")) continue;
+            
+            let matches = element.textContent.match(/[\u4E00-\u9FA5]+/g)
+            if(matches == null) continue;
+            
+            element.innerHTML = element.textContent.replace(/[\u4E00-\u9FA5]+/g, a => 
+            {
+                sentenceList[sentenceNo] = a
+                let result = `<span class="wanki wanki_sentence" id="wanki_sentence_${sentenceNo}">${a}</span>`
+                sentenceNo++;
+                return result;
+                
+            });
+        }
     });
-
-    // wordSet.forEach(word => {
-    //     innerHTML = innerHTML.replace(word, "<span class=\"wanki\">"+word+"</span>")
-    // });
-
-    document.body.innerHTML = innerHTML
-
-    console.log("Tag insertion done")
+    return sentenceList;
 }
 
 
+let port = chrome.runtime.connect({name:"wanki"});
+port.onMessage.addListener(message =>
+{
+    console.log("Message from background script : ", message);
 
-chrome.runtime.onConnect.addListener(port =>
-    {
-        console.log("Connected to background script");
-        port.onMessage.addListener(message =>
-            {
-                console.log("Message received : ", message);
-                switch (message.method) {
-                    case "get_phrase_list":
-                        port.postMessage({method:"get_phrase_list", data: getPhraseList()})
-                        break;
-                    
-                    case "add_word_tags":
-                        addWordTags(message.data)
-                        break;
-                
-                    default:
-                        break;
-                }
-            })
-    });
+    switch (message.method) {
+        case 'segment_sentences_result':
+            addWordTags(message.result)
+            break;
+    
+        default:
+            break;
+    }
+});
+
+
+let sentenceList = preparePage()
+
+port.postMessage({method: 'segment_sentences', sentenceList: sentenceList})
+
+
+

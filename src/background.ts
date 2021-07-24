@@ -22,51 +22,38 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 
-function segmentWords(phraseList: string[])
+
+function segmentSentences(phraseList: string[])
 {
-  let wordSet = new Set()
   let deconstructed:String[][] = []
 
   phraseList.forEach(phrase => {
     let wordList: string[] = hanzi.segment(phrase)
     deconstructed.push(wordList);
 
-    wordList.forEach(word => {
-      wordSet.add(word);
-    });
   });
-  console.log("Deconstructed : ", deconstructed)
-
-
-  return [wordSet, deconstructed];
+  return deconstructed;
 }
 
 
-chrome.tabs.onUpdated.addListener((tabId, tabInfo, tab) =>
-{
-if(tabInfo.status != "complete") return;
+chrome.runtime.onConnect.addListener(port =>
+  {
+    console.log("Connected to content script.");
 
-  let port = chrome.tabs.connect(tabId)
-  console.log("Connected to content script");
-
-  port.postMessage({method:"get_phrase_list"});
-
-  port.onMessage.addListener(message =>
-    {
-      console.log("Message received : ", message);
-
-      switch (message.method) {
-        case "get_phrase_list":
-          let [wordSet, deconstructed] = segmentWords(message.data) as [Set<String>, String[][]]
-          
-          port.postMessage({method: "add_word_tags", data: deconstructed})
-          
-          break;
-      
-        default:
-          break;
-      }
-    })
+    port.onMessage.addListener(message =>
+      {
+        console.log("Message from content script : ", message);
+        switch (message.method) {
+          case 'segment_sentences':
+            let segmentedSentences = segmentSentences(message.sentenceList)
+            port.postMessage({method:'segment_sentences_result', result: segmentedSentences})
+            break;
+        
+          default:
+            break;
+        }
 
 
-});
+      });
+
+  });
