@@ -10,18 +10,15 @@ function getISOCode()
     return subtags[0];
 }
 
-
+// TODO: Move to local storage ??
 let tagWhitelist = ["h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "td", "label", "div", "span", "q"]
 
 
-
-interface SentenceDetails
+interface WordDetails
 {
-    value: string;
-    deconstructed?: string[];
-    tag: string;
-    tagIndex: number;
-    position: number;
+    word: string;
+    isInDeck: boolean;
+
 }
 
 function addWordTags(segmentedSentences: string[][])
@@ -42,6 +39,13 @@ function addWordTags(segmentedSentences: string[][])
         sentenceElement!.innerHTML = reconstructedSentence;
     }
 }
+
+// TODO: Add function to set highlighgt color to wanki word tags depending on their word  (wanki_word_<word>)
+
+// Word highlight:
+// - green: high ease
+// - red: low ease
+// - gray: not in deck
 
 function preparePage()
 {
