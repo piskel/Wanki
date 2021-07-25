@@ -44,6 +44,7 @@ export interface CardInfo
     modelName: string,
     fieldOrder: number,
     fields: { [fieldName: string]: string },
+    factor: number,
     css: string,
     cardId: number,
     interval: number,
