@@ -35,3 +35,24 @@ export interface WordDetails
     ease: number;
     type: number;
 }
+
+export interface CardInfo
+{
+    answer: string,
+    question: string,
+    deckName: string,
+    modelName: string,
+    fieldOrder: number,
+    fields: { [fieldName: string]: string },
+    css: string,
+    cardId: number,
+    interval: number,
+    note: number,
+    ord: number,
+    type: number,
+    queue: number,
+    due: number,
+    reps: number,
+    lapses: number,
+    left: number
+}
