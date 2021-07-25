@@ -68,6 +68,17 @@ export default class AnkiController
     // ANKI CONNECT FUNCTIONS ///////////////////////////////////
     /////////////////////////////////////////////////////////////
 
+    static async version()
+    {
+        let request: AnkiRequest =
+        {
+            action: "version",
+            version: AnkiConnectVersion
+        }
+        return await this.sendRequestAsync(request)
+
+    }
+
     static findCards(query: string, callback: (results: AnkiResult) => void)
     {
         let request: AnkiRequest =
