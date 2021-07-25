@@ -113,8 +113,10 @@ function contentScriptInit()
     port.onMessage.addListener(messageListener);
 
     let sentenceList = preparePage()
-    port.postMessage({ method: 'process_sentences', sentenceList: sentenceList })
-    
+    if(sentenceList.length != 0)
+    {
+        port.postMessage({ method: 'process_sentences', sentenceList: sentenceList })
+    }   
 }
 
 // TODO: Make sure this gets called only once !!
