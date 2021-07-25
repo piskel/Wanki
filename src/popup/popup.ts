@@ -1,3 +1,4 @@
+console.log("Popup scrip started")
 
 let buttonConnect = document.getElementById('buttonConnect') as HTMLElement;
 let htmlConnectionState = document.getElementById("connectionState") as HTMLElement;

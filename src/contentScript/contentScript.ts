@@ -108,13 +108,11 @@ function messageListener(message: any, port: chrome.runtime.Port)
 
 function contentScriptInit()
 {
-    let port = chrome.runtime.connect({ name: "wanki" });
-
-    port.onMessage.addListener(messageListener);
-
     let sentenceList = preparePage()
     if(sentenceList.length != 0)
     {
+        let port = chrome.runtime.connect({ name: "wanki" });
+        port.onMessage.addListener(messageListener);
         port.postMessage({ method: 'process_sentences', sentenceList: sentenceList })
     }   
 }
