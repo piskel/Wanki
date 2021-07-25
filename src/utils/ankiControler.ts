@@ -212,13 +212,13 @@ export default class AnkiController
 
     static findWordsInDeck(word: string, deck: string, field: string, callback: (results: AnkiResult) => void)
     {
-        let query = `"${field}":"${word}" deck:"${deck}"`;
+        let query = `${field}:"${word}" deck:"${deck}"`;
         this.findCards(query, callback);
     }
 
     static async findWordsInDeckAsync(word: string, deck: string, field: string)
     {
-        let query = `"${field}":"${word}" deck:"${deck}"`;
+        let query = `${field}:"${word}" deck:"${deck}"`;
         return await this.findCardsAsync(query);
 
     }
