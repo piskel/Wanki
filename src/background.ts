@@ -1,4 +1,4 @@
-import { AnkiRequest, WankiConfiguration } from "./typedef";
+import { AnkiRequest, CardInfo, ProcessedSentences, WankiConfiguration, WordDetails } from "./typedef";
 import AnkiController from "./utils/ankiControler";
 import Wanki from "./wanki";
 
@@ -33,28 +33,60 @@ chrome.runtime.onInstalled.addListener(() =>
 });
 
 
+
+// TODO: Function too big
 /**
  * Converts a list of sentences to an array and a set of words.
  * @param sentenceList 
  * @returns An array of deconstructed sentences and the set of all the words in all of them.
  */
-function processSentences(sentenceList: string[])
+async function processSentences(sentenceList: string[]) 
 {
+
   let deconstructed: string[][] = []
   let wordSet: Set<string> = new Set()
+  let wordData: { [key: string]: WordDetails } = {}
 
+  //////////////////////////////////////////////////////////
   sentenceList.forEach(sentence =>
   {
     let wordList: string[] = hanzi.segment(sentence)
     deconstructed.push(wordList);
 
-    wordList.forEach(word => {
+    wordList.forEach(word =>
+    {
+      if (wordData[word] == undefined) wordData[word] = { word: word, frequency: 0, isInDeck: false, ease: -1, type: -1 };
+
+      wordData[word]['frequency'] += 1;
       wordSet.add(word);
     });
-
   });
-  return {deconstructed, wordSet};
+  
+  //////////////////////////////////////////////////////////
+
+  // TODO: Find a way to do this in only one request
+  let wordCardList = (await AnkiController.findAllWordsInDeckAsync(wordSet, storageCache.deck.name, storageCache.deck.frontField)).result
+  let wordInfoList = (await AnkiController.cardsInfoAsync(wordCardList)).result
+  // console.log(wordInfoList)
+  wordInfoList.forEach((info:CardInfo) => {
+    let word = info.fields[storageCache.deck.frontField].value
+    wordData[word].isInDeck = true;
+    wordData[word].ease = info.factor;
+    wordData[word].type = info.type;
+  });
+
+  //!!!!!!!!!!!!! REPLACE WORDSET WITH WORDDATA
+
+  console.log(wordData)
+
+  let result: ProcessedSentences = {
+    deconstructed: deconstructed,
+    wordData: wordData
+  }
+
+  return result;
 }
+
 
 /**
  * The onMessage listener for the background script
@@ -68,12 +100,8 @@ async function messageListener(message: any, port: chrome.runtime.Port)
   switch (message.method)
   {
     case 'process_sentences':
-      let processed = processSentences(message.sentenceList)
-
-      let wordInfos = await AnkiController.findAllWordsInfosInDeckAsync(processed.wordSet, storageCache.deck.name, storageCache.deck.frontField)
-      console.log(storageCache)
-
-      port.postMessage({ method: 'process_sentences_result', result: processed.deconstructed })
+      let processed = await processSentences(message.sentenceList)
+      port.postMessage({ method: 'process_sentences_result', result: processed })
       break;
 
     default:
@@ -90,6 +118,15 @@ async function onConnectListener(port: chrome.runtime.Port)
   console.log("Connected to content script.");
   port.onMessage.addListener(messageListener);
 }
+
+
+
+// async function checkAnkiConfiguration()
+// {
+//   let versionResult = await AnkiController.version();
+//   console.log(versionResult)
+// }
+
 
 /**
  * Initializes the background script

@@ -13,7 +13,6 @@ export default class AnkiController
     // TODO: Use Chrome Storage
     static getAnkiURL()
     {
-
         return `http://localhost:8765`
     }
 
@@ -55,7 +54,7 @@ export default class AnkiController
         let response = await fetch(this.getAnkiURL(), requestOptions)
 
         console.log("Sending request : ", request)
-        return await response.json();
+        return await response.json()  as AnkiResult;
     }
 
 
@@ -104,7 +103,7 @@ export default class AnkiController
             },
             version: AnkiConnectVersion
         }
-        return await this.sendRequestAsync(request)
+        return await this.sendRequestAsync(request);
     }
 
     static cardsInfo(cards: number[], callback: (results: AnkiResult) => void)
@@ -132,7 +131,7 @@ export default class AnkiController
             },
             version: AnkiConnectVersion
         }
-        return await this.sendRequestAsync(request)
+        return await this.sendRequestAsync(request);
     }
 
     static getEaseFactor(cards: number[], callback: (results: AnkiResult) => void)
@@ -160,7 +159,7 @@ export default class AnkiController
             },
             version: AnkiConnectVersion
         }
-        return await this.sendRequestAsync(request)
+        return await this.sendRequestAsync(request);
     }
 
     static deckNamesAndIds(callback: (results: AnkiResult) => void)
@@ -213,32 +212,25 @@ export default class AnkiController
 
     static findWordsInDeck(word: string, deck: string, field: string, callback: (results: AnkiResult) => void)
     {
-        let query = `deck:"${deck}" ${field}:"${word}"`
+        let query = `"${field}":"${word}" deck:"${deck}"`;
         this.findCards(query, callback);
-        
     }
 
     static async findWordsInDeckAsync(word: string, deck: string, field: string)
     {
-        let query = `deck:"${deck}" ${field}:"${word}"`;
+        let query = `"${field}":"${word}" deck:"${deck}"`;
         return await this.findCardsAsync(query);
 
     }
 
-    static async findAllWordsInfosInDeckAsync(wordSet: Set<string>, deck:string, field:string)
+    static async findAllWordsInDeckAsync(wordSet: Set<string>, deck: string, field: string)
     {
-        let wordInfos: {[key:string]:any} = {}
-
         let searchRegex = "re:(\\b"
         searchRegex += Array.from(wordSet).join('\\b|\\b')
-        searchRegex += "\b)"
+        searchRegex += "\\b)"
 
-        let wordsDeck = (await this.findWordsInDeckAsync(searchRegex, deck, field)).result;
-        // let wordsDeck = (await this.findCardsAsync(searchRegex)).result
-        console.log(wordsDeck)
-        wordInfos = await this.cardsInfoAsync(wordsDeck)
-
-        return wordInfos;
+        let wordsDeck = (await this.findWordsInDeckAsync(searchRegex, deck, field));
+        return wordsDeck
     }
 
 }

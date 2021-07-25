@@ -1,3 +1,4 @@
+import { ProcessedSentences, WordDetails } from "../typedef";
 
 console.log("Content script started");
 
@@ -35,7 +36,6 @@ function addWordTags(segmentedSentences: string[][])
     }
 }
 
-// TODO: Add function to set highlighgt color to wanki word tags depending on their word  (wanki_word_<word>)
 
 // Word highlight:
 // - green: high ease
@@ -75,6 +75,18 @@ function preparePage()
     return sentenceList;
 }
 
+function setTagColor(wordData: { [key: string]: WordDetails })
+{
+    for (let key in wordData)
+    {
+        if(wordData[key].isInDeck) continue;
+        let wordTags = Array.from(document.getElementsByClassName(`wanki_word_${key}`))
+        wordTags.forEach(tag => {
+            tag.setAttribute("style", "color: red")
+        });
+    }
+}
+
 
 function messageListener(message: any, port: chrome.runtime.Port)
 {
@@ -83,7 +95,9 @@ function messageListener(message: any, port: chrome.runtime.Port)
     switch (message.method)
     {
         case 'process_sentences_result':
-            addWordTags(message.result)
+            let processed = message.result as ProcessedSentences
+            addWordTags(processed.deconstructed)
+            setTagColor(processed.wordData)
             break;
 
         default:

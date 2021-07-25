@@ -29,13 +29,18 @@ export interface WankiConfiguration
 
 export interface WordDetails
 {
-    word: string;
-    frequency: number;
-    isInDeck: boolean;
-    ease: number;
-    type: number;
+    word: string,
+    frequency: number,
+    isInDeck: boolean,
+    ease: number,
+    type: number
 }
 
+export interface CardInfoField
+{
+    value: string,
+    order: number
+}
 export interface CardInfo
 {
     answer: string,
@@ -43,7 +48,7 @@ export interface CardInfo
     deckName: string,
     modelName: string,
     fieldOrder: number,
-    fields: { [fieldName: string]: string },
+    fields: {[fieldName:string]: CardInfoField},
     factor: number,
     css: string,
     cardId: number,
@@ -56,4 +61,10 @@ export interface CardInfo
     reps: number,
     lapses: number,
     left: number
+}
+
+export interface ProcessedSentences
+{
+    deconstructed: string[][],
+    wordData: { [key: string]: WordDetails }
 }
