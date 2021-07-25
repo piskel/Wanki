@@ -122,9 +122,10 @@ function popupMessageListener(message:ExtensionMessage, sender: chrome.runtime.M
 {
 
     console.log("Received message from popup ", message)
-    
+
     switch (message.method) {
         case 'get_word_data':
+            console.log("Sending word data to popup : ", pageWordData)
             sendResponse({method:'get_word_data_result', data:pageWordData})
             break;
     

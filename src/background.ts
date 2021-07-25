@@ -57,7 +57,7 @@ async function processSentences(sentenceList: string[])
 
     wordList.forEach(word =>
     {
-      if (wordData[word] == undefined) wordData[word] = { word: word, frequency: 0, isInDeck: false, ease: -1, type: -1 };
+      if (wordData[word] == undefined) wordData[word] = { word: word, frequency: 0, isInDeck: false, ease: -1, type: -1, interval: 0 };
 
       wordData[word]['frequency'] += 1;
       wordSet.add(word);
@@ -77,9 +77,11 @@ async function processSentences(sentenceList: string[])
   {
     let word = info.fields[storageCache.deck.frontField].value
     if (wordData[word] != undefined){
+      console.log("In deck: ", info)
       wordData[word].isInDeck = true;
       wordData[word].ease = info.factor;
       wordData[word].type = info.type;
+      wordData[word].interval = info.interval;
     }
   });
 

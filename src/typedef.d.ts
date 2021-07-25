@@ -33,7 +33,8 @@ export interface WordDetails
     frequency: number,
     isInDeck: boolean,
     ease: number,
-    type: number
+    type: number,
+    interval: number
 }
 
 export interface CardInfoField
@@ -49,13 +50,13 @@ export interface CardInfo
     modelName: string,
     fieldOrder: number,
     fields: {[fieldName:string]: CardInfoField},
-    factor: number,
+    factor: number, // Ease factor
     css: string,
     cardId: number,
-    interval: number,
+    interval: number, // Positive values are days, negative are seconds
     note: number,
     ord: number,
-    type: number,
+    type: number, // This is 0 for learning cards, 1 for review cards, 2 for relearn cards, and 3 for early "cram" cards.
     queue: number,
     due: number,
     reps: number,
