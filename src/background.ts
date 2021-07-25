@@ -1,4 +1,4 @@
-import { AnkiRequest, CardInfo, ProcessedSentences, WankiConfiguration, WordDetails } from "./typedef";
+import { AnkiRequest, CardInfo, ExtensionMessage, ProcessedSentences, WankiConfiguration, WordDetails } from "./typedef";
 import AnkiController from "./utils/ankiControler";
 import Wanki from "./wanki";
 
@@ -20,8 +20,10 @@ let initialConfiguration: WankiConfiguration =
   },
   deck:
   {
-    name: "xiehanzi HSK 3.0",
-    frontField: "Traditional"
+    name: "Wanki Chinese",
+    frontField: "Front"
+    // name: "xiehanzi HSK 3.0",
+    // frontField: "Traditional"
   }
 }
 
@@ -61,18 +63,24 @@ async function processSentences(sentenceList: string[])
       wordSet.add(word);
     });
   });
-  
+
   //////////////////////////////////////////////////////////
 
   // TODO: Find a way to do this in only one request
   let wordCardList = (await AnkiController.findAllWordsInDeckAsync(wordSet, storageCache.deck.name, storageCache.deck.frontField)).result
   let wordInfoList = (await AnkiController.cardsInfoAsync(wordCardList)).result
+
+  console.log("Word Card List : ", wordCardList)
+  console.log("Word Info List : ", wordInfoList)
   // console.log(wordInfoList)
-  wordInfoList.forEach((info:CardInfo) => {
+  wordInfoList.forEach((info: CardInfo) =>
+  {
     let word = info.fields[storageCache.deck.frontField].value
-    wordData[word].isInDeck = true;
-    wordData[word].ease = info.factor;
-    wordData[word].type = info.type;
+    if (wordData[word] != undefined){
+      wordData[word].isInDeck = true;
+      wordData[word].ease = info.factor;
+      wordData[word].type = info.type;
+    }
   });
 
   //!!!!!!!!!!!!! REPLACE WORDSET WITH WORDDATA
@@ -93,15 +101,15 @@ async function processSentences(sentenceList: string[])
  * @param message Message received
  * @param port Port on which the message was received
  */
-async function messageListener(message: any, port: chrome.runtime.Port)
+async function messageListener(message: ExtensionMessage, port: chrome.runtime.Port)
 {
-  console.log("Message from content script : ", message);
+  console.log(`Message from content : `, message);
 
   switch (message.method)
   {
     case 'process_sentences':
-      let processed = await processSentences(message.sentenceList)
-      port.postMessage({ method: 'process_sentences_result', result: processed })
+      let processed = await processSentences(message.data)
+      port.postMessage({ method: 'process_sentences_result', data: processed} as ExtensionMessage)
       break;
 
     default:
@@ -119,13 +127,6 @@ async function onConnectListener(port: chrome.runtime.Port)
   port.onMessage.addListener(messageListener);
 }
 
-
-
-// async function checkAnkiConfiguration()
-// {
-//   let versionResult = await AnkiController.version();
-//   console.log(versionResult)
-// }
 
 
 /**

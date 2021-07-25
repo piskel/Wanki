@@ -68,3 +68,11 @@ export interface ProcessedSentences
     deconstructed: string[][],
     wordData: { [key: string]: WordDetails }
 }
+
+type TargetContext = "background" | "content" | "popup"
+
+export interface ExtensionMessage
+{
+    method: string,
+    data?: any
+}

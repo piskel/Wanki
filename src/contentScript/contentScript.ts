@@ -1,7 +1,8 @@
-import { ProcessedSentences, WordDetails } from "../typedef";
+import { ExtensionMessage, ProcessedSentences, WordDetails } from "../typedef";
 
 console.log("Content script started");
 
+var pageWordData: { [key: string]: WordDetails } = {}
 
 // TODO: Move to local storage ??
 let tagWhitelist = ["h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "td", "label", "div", "span", "q"]
@@ -27,7 +28,7 @@ function addWordTags(segmentedSentences: string[][])
         let reconstructedSentence = ""
         segmentedSentence.forEach(word =>
         {
-            reconstructedSentence += `<span class="wanki wanki_word wanki_word_${word}" id="wanki_word_${wordNo}" style="color:green !important">${word}</span>`;
+            reconstructedSentence += `<span class="wanki wanki_word wanki_word_${word}">${word}</span>`;
             
             wordNo++;
         });
@@ -36,11 +37,6 @@ function addWordTags(segmentedSentences: string[][])
     }
 }
 
-
-// Word highlight:
-// - green: high ease
-// - red: low ease
-// - gray: not in deck
 
 function preparePage()
 {
@@ -79,27 +75,59 @@ function setTagColor(wordData: { [key: string]: WordDetails })
 {
     for (let key in wordData)
     {
-        if(wordData[key].isInDeck) continue;
         let wordTags = Array.from(document.getElementsByClassName(`wanki_word_${key}`))
+
+        let style = ''
+
+        // Word is in deck
+        if(wordData[key].isInDeck)
+        {
+            style += 'color:green;'
+        }
+        else
+        {
+            style += 'color:gray;'
+        }
+
         wordTags.forEach(tag => {
-            tag.setAttribute("style", "color: red")
+            tag.setAttribute("style", style)
         });
     }
 }
 
 
-function messageListener(message: any, port: chrome.runtime.Port)
+function messageListener(message: ExtensionMessage, port: chrome.runtime.Port)
 {
-    console.log("Message from background script : ", message);
-    
+    console.log(`Message from background : `, message);
+
     switch (message.method)
     {
         case 'process_sentences_result':
-            let processed = message.result as ProcessedSentences
+            let processed = message.data as ProcessedSentences;
+
+            pageWordData = processed.wordData;
             addWordTags(processed.deconstructed)
             setTagColor(processed.wordData)
             break;
 
+        // case 'get_word_data':
+        //     port.postMessage({method: 'get_word_data_result', data:pageWordData, sender:"content", target:message.sender} as ExtensionMessage)
+
+        default:
+            break;
+    }
+}
+
+function popupMessageListener(message:ExtensionMessage, sender: chrome.runtime.MessageSender, sendResponse: (response?: ExtensionMessage) => void)
+{
+
+    console.log("Received message from popup ", message)
+    
+    switch (message.method) {
+        case 'get_word_data':
+            sendResponse({method:'get_word_data_result', data:pageWordData})
+            break;
+    
         default:
             break;
     }
@@ -109,12 +137,15 @@ function messageListener(message: any, port: chrome.runtime.Port)
 function contentScriptInit()
 {
     let sentenceList = preparePage()
-    if(sentenceList.length != 0)
-    {
-        let port = chrome.runtime.connect({ name: "wanki" });
-        port.onMessage.addListener(messageListener);
-        port.postMessage({ method: 'process_sentences', sentenceList: sentenceList })
-    }   
+    if(sentenceList.length == 0) return;
+    
+    let port = chrome.runtime.connect({ name: "wanki" });
+    port.onMessage.addListener(messageListener);
+
+    port.postMessage({ method: 'process_sentences', data: sentenceList} as ExtensionMessage)
+
+    chrome.runtime.onMessage.addListener(popupMessageListener)
+
 }
 
 // TODO: Make sure this gets called only once !!
