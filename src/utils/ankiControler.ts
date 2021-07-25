@@ -17,6 +17,7 @@ export default class AnkiController
         return `http://localhost:8765`
     }
 
+    // TODO: Handle when Anki is not opened
     static sendRequest(request: AnkiRequest, callback: (results: AnkiResult) => void)
     {
         var myHeaders = new Headers();
@@ -31,12 +32,11 @@ export default class AnkiController
             redirect: 'follow'
         };
 
-
+        console.log("Sending request : ", request)
         fetch(this.getAnkiURL(), requestOptions)
             .then(response => response.json() as Promise<AnkiResult>)
             .then(callback)
             .catch(this.errorHandler);
-        // return jsonResponse;
     }
 
     static async sendRequestAsync(request: AnkiRequest)
@@ -54,6 +54,7 @@ export default class AnkiController
         };
         let response = await fetch(this.getAnkiURL(), requestOptions)
 
+        console.log("Sending request : ", request)
         return await response.json();
     }
 
@@ -123,7 +124,6 @@ export default class AnkiController
         return await this.sendRequestAsync(request)
     }
 
-    // TODO: For mass query, using callback does not scale. Use async/await
     static getEaseFactor(cards: number[], callback: (results: AnkiResult) => void)
     {
         let request: AnkiRequest =
@@ -214,7 +214,7 @@ export default class AnkiController
 
     }
 
-    static async findAllWordsInDeckAsync(wordSet: Set<string>, deck:string, field:string)
+    static async findAllWordsInfosInDeckAsync(wordSet: Set<string>, deck:string, field:string)
     {
         let wordInfos: {[key:string]:any} = {}
 
@@ -223,8 +223,9 @@ export default class AnkiController
         searchRegex += "\b)"
 
         let wordsDeck = (await this.findWordsInDeckAsync(searchRegex, deck, field)).result;
+        // let wordsDeck = (await this.findCardsAsync(searchRegex)).result
         console.log(wordsDeck)
-        console.log(await this.cardsInfoAsync(wordsDeck))
+        wordInfos = await this.cardsInfoAsync(wordsDeck)
 
         return wordInfos;
     }

@@ -10,8 +10,6 @@ hanzi.start()
 var storageCache: WankiConfiguration
 
 
-// TODO: Make interface for configuration
-
 // Default configuration
 let initialConfiguration: WankiConfiguration =
 {
@@ -20,46 +18,43 @@ let initialConfiguration: WankiConfiguration =
     hostname: "localhost",
     port: "8765"
   },
-  deckName: "Wanki"
-  // mappedDecks:{}, // Will map decks to their respective languages
+  deck:
+  {
+    name: "xiehanzi HSK 3.0",
+    frontField: "Traditional"
+  }
 }
 
 // Event used to initialize an extension during installation.
 chrome.runtime.onInstalled.addListener(() =>
 {
-  chrome.storage.sync.set({ config: initialConfiguration });
+  chrome.storage.sync.clear(); // WARNING!!! This might require the user to reenter their info after every update
+  chrome.storage.sync.set(initialConfiguration);
 });
 
 
 /**
- * Segments Chinese sentences into words
- * @param sentenceList List of Chinese sentences
- * @returns An array of segmented sentences
+ * Converts a list of sentences to an array and a set of words.
+ * @param sentenceList 
+ * @returns An array of deconstructed sentences and the set of all the words in all of them.
  */
-function segmentSentences(sentenceList: string[])
+function processSentences(sentenceList: string[])
 {
   let deconstructed: string[][] = []
+  let wordSet: Set<string> = new Set()
 
   sentenceList.forEach(sentence =>
   {
     let wordList: string[] = hanzi.segment(sentence)
     deconstructed.push(wordList);
 
-  });
-  return deconstructed;
-}
-
-function segmentedToSet(segmentedSentences:string[][])
-{
-  let wordSet: Set<string> = new Set()
-  segmentedSentences.forEach(sentence => {
-    sentence.forEach(word => {
+    wordList.forEach(word => {
       wordSet.add(word);
     });
-  });
-  return wordSet;
-}
 
+  });
+  return {deconstructed, wordSet};
+}
 
 /**
  * The onMessage listener for the background script
@@ -72,15 +67,13 @@ async function messageListener(message: any, port: chrome.runtime.Port)
 
   switch (message.method)
   {
-    case 'segment_sentences':
-      let segmentedSentences = segmentSentences(message.sentenceList)
+    case 'process_sentences':
+      let processed = processSentences(message.sentenceList)
 
-      let wordSet = segmentedToSet(segmentedSentences);
-      console.log(wordSet)
+      let wordInfos = await AnkiController.findAllWordsInfosInDeckAsync(processed.wordSet, storageCache.deck.name, storageCache.deck.frontField)
+      console.log(storageCache)
 
-      console.log(await AnkiController.findAllWordsInDeckAsync(wordSet, "xiehanzi HSK 3.0", "Traditional"));
-
-      port.postMessage({ method: 'segment_sentences_result', result: segmentedSentences })
+      port.postMessage({ method: 'process_sentences_result', result: processed.deconstructed })
       break;
 
     default:
@@ -103,6 +96,7 @@ async function onConnectListener(port: chrome.runtime.Port)
  */
 function backgroundScriptInit()
 {
+  // chrome.storage.sync.clear()
   chrome.storage.sync.get(null, async (result) =>
   {
     storageCache = result as WankiConfiguration;

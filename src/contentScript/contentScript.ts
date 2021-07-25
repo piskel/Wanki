@@ -2,6 +2,9 @@
 console.log("Content script started");
 
 
+// TODO: Move to local storage ??
+let tagWhitelist = ["h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "td", "label", "div", "span", "q"]
+
 // TODO: Add support for returning subtags (lang+script+region)
 function getISOCode()
 {
@@ -9,11 +12,6 @@ function getISOCode()
     let subtags = isoCode.split('-');
     return subtags[0];
 }
-
-// TODO: Move to local storage ??
-let tagWhitelist = ["h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "td", "label", "div", "span", "q"]
-
-
 
 function addWordTags(segmentedSentences: string[][])
 {
@@ -78,27 +76,30 @@ function preparePage()
 }
 
 
-let port = chrome.runtime.connect({ name: "wanki" });
-port.onMessage.addListener(message =>
+function messageListener(message: any, port: chrome.runtime.Port)
 {
     console.log("Message from background script : ", message);
-
+    
     switch (message.method)
     {
-        case 'segment_sentences_result':
+        case 'process_sentences_result':
             addWordTags(message.result)
             break;
 
         default:
             break;
     }
-});
+}
 
 
 function contentScriptInit()
 {
+    let port = chrome.runtime.connect({ name: "wanki" });
+
+    port.onMessage.addListener(messageListener);
+
     let sentenceList = preparePage()
-    port.postMessage({ method: 'segment_sentences', sentenceList: sentenceList })
+    port.postMessage({ method: 'process_sentences', sentenceList: sentenceList })
     
 }
 

@@ -20,7 +20,11 @@ export interface WankiConfiguration
         hostname:string,
         port:string
     },
-    deckName:string
+    deck:
+    {
+        name: string,
+        frontField: string
+    }
 }
 
 export interface WordDetails
