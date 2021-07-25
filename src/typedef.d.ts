@@ -22,3 +22,12 @@ export interface WankiConfiguration
     },
     deckName:string
 }
+
+export interface WordDetails
+{
+    word: string;
+    frequency: number;
+    isInDeck: boolean;
+    ease: number;
+    type: number;
+}
