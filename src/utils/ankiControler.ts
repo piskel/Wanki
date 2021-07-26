@@ -10,14 +10,7 @@ export default class AnkiController
     // NETWORK FUNCTIONS ////////////////////////////////////////
     /////////////////////////////////////////////////////////////
 
-    // TODO: Use Chrome Storage
-    static getAnkiURL()
-    {
-        return `http://localhost:8765`
-    }
-
-    // TODO: Handle when Anki is not opened
-    static sendRequest(request: AnkiRequest, callback: (results: AnkiResult) => void)
+    static async sendRequest(url:string, request: AnkiRequest)
     {
         var myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
@@ -30,31 +23,10 @@ export default class AnkiController
             body: raw,
             redirect: 'follow'
         };
+        let response = await fetch(url, requestOptions)
 
         console.log("Sending request : ", request)
-        fetch(this.getAnkiURL(), requestOptions)
-            .then(response => response.json() as Promise<AnkiResult>)
-            .then(callback)
-            .catch(this.errorHandler);
-    }
-
-    static async sendRequestAsync(request: AnkiRequest)
-    {
-        var myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-
-        var raw = JSON.stringify(request);
-
-        var requestOptions: RequestInit = {
-            method: 'POST',
-            headers: myHeaders,
-            body: raw,
-            redirect: 'follow'
-        };
-        let response = await fetch(this.getAnkiURL(), requestOptions)
-
-        console.log("Sending request : ", request)
-        return await response.json()  as AnkiResult;
+        return await response.json() as AnkiResult;
     }
 
 
@@ -67,18 +39,18 @@ export default class AnkiController
     // ANKI CONNECT FUNCTIONS ///////////////////////////////////
     /////////////////////////////////////////////////////////////
 
-    static async version()
+    static async version(url:string)
     {
         let request: AnkiRequest =
         {
             action: "version",
             version: AnkiConnectVersion
         }
-        return await this.sendRequestAsync(request)
+        return await this.sendRequest(url, request)
 
     }
 
-    static findCards(query: string, callback: (results: AnkiResult) => void)
+    static async findCards(url:string, query: string)
     {
         let request: AnkiRequest =
         {
@@ -89,24 +61,10 @@ export default class AnkiController
             },
             version: AnkiConnectVersion
         }
-        this.sendRequest(request, callback)
+        return await this.sendRequest(url, request);
     }
 
-    static async findCardsAsync(query: string)
-    {
-        let request: AnkiRequest =
-        {
-            action: "findCards",
-            params:
-            {
-                query: query
-            },
-            version: AnkiConnectVersion
-        }
-        return await this.sendRequestAsync(request);
-    }
-
-    static cardsInfo(cards: number[], callback: (results: AnkiResult) => void)
+    static async cardsInfo(url:string, cards: number[])
     {
         let request: AnkiRequest =
         {
@@ -117,24 +75,10 @@ export default class AnkiController
             },
             version: AnkiConnectVersion
         }
-        this.sendRequest(request, callback)
+        return await this.sendRequest(url, request);
     }
 
-    static async cardsInfoAsync(cards: number[])
-    {
-        let request: AnkiRequest =
-        {
-            action: "cardsInfo",
-            params:
-            {
-                cards: cards
-            },
-            version: AnkiConnectVersion
-        }
-        return await this.sendRequestAsync(request);
-    }
-
-    static getEaseFactor(cards: number[], callback: (results: AnkiResult) => void)
+    static async getEaseFactor(url:string, cards: number[])
     {
         let request: AnkiRequest =
         {
@@ -145,34 +89,20 @@ export default class AnkiController
             },
             version: AnkiConnectVersion
         }
-        this.sendRequest(request, callback)
+        return await this.sendRequest(url, request);
     }
 
-    static async getEaseFactorAsync(cards: number[])
-    {
-        let request: AnkiRequest =
-        {
-            action: "getEaseFactors",
-            params:
-            {
-                cards: cards
-            },
-            version: AnkiConnectVersion
-        }
-        return await this.sendRequestAsync(request);
-    }
-
-    static deckNamesAndIds(callback: (results: AnkiResult) => void)
+    static async deckNamesAndIds(url:string)
     {
         let request: AnkiRequest =
         {
             action: "deckNamesAndIds",
             version: AnkiConnectVersion
         }
-        this.sendRequest(request, callback)
+        return await this.sendRequest(url, request);
     }
 
-    static createDeck(deck: string, callback: (results: AnkiResult) => void)
+    static createDeck(url:string, deck: string)
     {
         let request: AnkiRequest =
         {
@@ -183,10 +113,10 @@ export default class AnkiController
             },
             version: AnkiConnectVersion
         }
-        this.sendRequest(request, callback)
+        this.sendRequest(url, request)
     }
 
-    static guiAddCards(deckName: string, modelName: string, fields: { [field: string]: string }, options: { [option: string]: any }, tags: string[], callback: (results: AnkiResult) => void)
+    static guiAddCards(url:string, deckName: string, modelName: string, fields: { [field: string]: string }, options: { [option: string]: any }, tags: string[])
     {
         let request: AnkiRequest =
         {
@@ -203,33 +133,26 @@ export default class AnkiController
             },
             version: AnkiConnectVersion
         }
-        this.sendRequest(request, callback)
+        this.sendRequest(url, request)
     }
 
     /////////////////////////////////////////////////////////////
     // WANKI SPECIALIZED FUNCTIONS //////////////////////////////
     /////////////////////////////////////////////////////////////
 
-    static findWordsInDeck(word: string, deck: string, field: string, callback: (results: AnkiResult) => void)
+    static async findWordsInDeck(url:string, word: string, deck: string, field: string)
     {
         let query = `${field}:"${word}" deck:"${deck}"`;
-        this.findCards(query, callback);
+        return await this.findCards(url, query);
     }
 
-    static async findWordsInDeckAsync(word: string, deck: string, field: string)
-    {
-        let query = `${field}:"${word}" deck:"${deck}"`;
-        return await this.findCardsAsync(query);
-
-    }
-
-    static async findAllWordsInDeckAsync(wordSet: Set<string>, deck: string, field: string)
+    static async findAllWordsInDeck(url:string, wordSet: Set<string>, deck: string, field: string)
     {
         let searchRegex = "re:(\\b"
         searchRegex += Array.from(wordSet).join('\\b|\\b')
         searchRegex += "\\b)"
 
-        let wordsDeck = (await this.findWordsInDeckAsync(searchRegex, deck, field));
+        let wordsDeck = (await this.findWordsInDeck(url, searchRegex, deck, field));
         return wordsDeck
     }
 

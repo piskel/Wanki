@@ -95,8 +95,8 @@ export default class Wanki
      */
     async getWordsInfo(wordSet: Set<string>, language:IsoLanguage)
     {
-        let wordCardList = (await AnkiController.findAllWordsInDeckAsync(wordSet, this.deckList[language].name, this.deckList[language].field)).result
-        return (await AnkiController.cardsInfoAsync(wordCardList)).result
+        let wordCardList = (await AnkiController.findAllWordsInDeck(this.ankiConnectUrl, wordSet, this.deckList[language].name, this.deckList[language].field)).result
+        return (await AnkiController.cardsInfo(this.ankiConnectUrl, wordCardList)).result
     }
 
     /**
@@ -121,6 +121,20 @@ export default class Wanki
             }
         });
         return wordData
+    }
+
+    /////////////////////////////////////////////////////////////
+    // CONFIGURATION METHODS ////////////////////////////////////
+    /////////////////////////////////////////////////////////////
+
+    async checkDeckCoherence()
+    {
+        // AnkiController.deckNamesAndIds
+        for(let lang in this.deckList)
+        {
+            let deck = this.deckList[lang]
+            
+        }
     }
 
 }

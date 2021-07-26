@@ -1,13 +1,12 @@
-import { AnkiRequest, CardInfo, ExtensionMessage, ProcessedSentences, WankiConfiguration, WordDetails } from "./typedef";
+import { CardInfo, ExtensionMessage, ProcessedSentences, WankiConfiguration, WordDetails } from "./typedef";
 import AnkiController from "./utils/ankiControler";
-import Wanki from "./wanki";
 
 console.log("Background script started")
 var hanzi = require('hanzi');
 hanzi.start()
 
 
-var storageCache:{[name:string]:any}
+var storageCache: { [name: string]: any }
 
 
 // Default configuration
@@ -68,8 +67,8 @@ async function processSentences(sentenceList: string[])
   //////////////////////////////////////////////////////////
 
   // TODO: Find a way to do this in only one request
-  let wordCardList = (await AnkiController.findAllWordsInDeckAsync(wordSet, storageCache.deck.name, storageCache.deck.frontField)).result
-  let wordInfoList = (await AnkiController.cardsInfoAsync(wordCardList)).result
+  let wordCardList = (await AnkiController.findAllWordsInDeck("http://localhost:8765", wordSet, storageCache.deck.name, storageCache.deck.frontField)).result
+  let wordInfoList = (await AnkiController.cardsInfo("http://localhost:8765", wordCardList)).result
 
   console.log("Word Card List : ", wordCardList)
   console.log("Word Info List : ", wordInfoList)
@@ -77,7 +76,8 @@ async function processSentences(sentenceList: string[])
   wordInfoList.forEach((info: CardInfo) =>
   {
     let word = info.fields[storageCache.deck.frontField].value
-    if (wordData[word] != undefined){
+    if (wordData[word] != undefined)
+    {
       console.log("In deck: ", info)
       wordData[word].isInDeck = true;
       wordData[word].ease = info.factor;
@@ -110,7 +110,7 @@ async function messageListener(message: ExtensionMessage, port: chrome.runtime.P
   {
     case 'process_sentences':
       let processed = await processSentences(message.data)
-      port.postMessage({ method: 'process_sentences_result', data: processed} as ExtensionMessage)
+      port.postMessage({ method: 'process_sentences_result', data: processed } as ExtensionMessage)
       break;
 
     default:
