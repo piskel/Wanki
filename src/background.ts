@@ -7,11 +7,11 @@ var hanzi = require('hanzi');
 hanzi.start()
 
 
-var storageCache: WankiConfiguration
+var storageCache:{[name:string]:any}
 
 
 // Default configuration
-let initialConfiguration: WankiConfiguration =
+let initialConfiguration =
 {
   ankiConnect:
   {
@@ -53,12 +53,13 @@ async function processSentences(sentenceList: string[])
   sentenceList.forEach(sentence =>
   {
     let wordList: string[] = hanzi.segment(sentence)
+
     deconstructed.push(wordList);
 
     wordList.forEach(word =>
     {
+      // If word is not in the deck
       if (wordData[word] == undefined) wordData[word] = { word: word, frequency: 0, isInDeck: false, ease: -1, type: -1, interval: 0 };
-
       wordData[word]['frequency'] += 1;
       wordSet.add(word);
     });
@@ -84,8 +85,6 @@ async function processSentences(sentenceList: string[])
       wordData[word].interval = info.interval;
     }
   });
-
-  //!!!!!!!!!!!!! REPLACE WORDSET WITH WORDDATA
 
   console.log(wordData)
 

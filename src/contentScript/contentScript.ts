@@ -1,11 +1,10 @@
+import { tagWhitelist } from "../config";
 import { ExtensionMessage, ProcessedSentences, WordDetails } from "../typedef";
+
 
 console.log("Content script started");
 
 var pageWordData: { [key: string]: WordDetails } = {}
-
-// TODO: Move to local storage ??
-let tagWhitelist = ["h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "td", "label", "div", "span", "q"]
 
 // TODO: Add support for returning subtags (lang+script+region)
 function getISOCode()
@@ -54,6 +53,7 @@ function preparePage()
             // TODO: Check for better filtering when tag has child node
             if (element == null || element.children.length != 0 || element.textContent == null || element.classList.contains("wanki")) continue;
 
+            // TODO: Are those two lines bellow really useful ??
             let matches = element.textContent.match(/[\u4E00-\u9FA5]+/g)
             if (matches == null) continue;
 

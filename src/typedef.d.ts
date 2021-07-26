@@ -1,5 +1,7 @@
 export type AnkiRequestAction = "version"|"deckNamesAndIds" | "findCards" | "getEaseFactors" | "cardsInfo" | "createDeck" | "getDecks" | "guiAddCards";
 
+export type IsoLanguage = "zh"
+
 export interface AnkiRequest
 {
     action: AnkiRequestAction
@@ -13,6 +15,13 @@ export interface AnkiResult
     error: string | null;
 }
 
+export interface DeckInfos 
+{
+    name: string,
+    language: IsoLanguage,
+    field: string
+}
+
 export interface WankiConfiguration
 {
     ankiConnect:
@@ -20,11 +29,7 @@ export interface WankiConfiguration
         hostname:string,
         port:string
     },
-    deck:
-    {
-        name: string,
-        frontField: string
-    }
+    deckList:{[language:string]:DeckInfos}
 }
 
 export interface WordDetails
@@ -70,7 +75,7 @@ export interface ProcessedSentences
     wordData: { [key: string]: WordDetails }
 }
 
-type TargetContext = "background" | "content" | "popup"
+export type TargetContext = "background" | "content" | "popup"
 
 export interface ExtensionMessage
 {
