@@ -1,4 +1,4 @@
-import { tagWhitelist } from "../config";
+import { TAG_WHITELIST } from "../config";
 import { ExtensionMessage, ProcessedSentences, WordDetails } from "../typedef";
 
 
@@ -42,7 +42,7 @@ function preparePage()
     let sentenceList: string[] = []
     let sentenceNo = 0
 
-    tagWhitelist.forEach(tagName =>
+    TAG_WHITELIST.forEach(tagName =>
     {
         let elementList = document.getElementsByTagName(tagName);
 

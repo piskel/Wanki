@@ -1,9 +1,11 @@
 import { IsoLanguage } from "./typedef";
 
-export let supportedLanguages: IsoLanguage[] = [
+export let ANKI_CONNECT_VERSION = 6;
+
+export let SUPPORTED_LANGUAGES: IsoLanguage[] = [
     "zh"
 ]
 
-export let tagWhitelist = [
+export let TAG_WHITELIST = [
     "h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "td", "label", "div", "span", "q"
 ]

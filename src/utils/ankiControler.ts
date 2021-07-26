@@ -1,7 +1,7 @@
+import { ANKI_CONNECT_VERSION } from "../config";
 import { AnkiRequest, AnkiResult } from "../typedef";
 
 
-var AnkiConnectVersion = 6
 
 
 export default class AnkiController
@@ -44,7 +44,7 @@ export default class AnkiController
         let request: AnkiRequest =
         {
             action: "version",
-            version: AnkiConnectVersion
+            version: ANKI_CONNECT_VERSION
         }
         return await this.sendRequest(url, request)
 
@@ -59,7 +59,7 @@ export default class AnkiController
             {
                 query: query
             },
-            version: AnkiConnectVersion
+            version: ANKI_CONNECT_VERSION
         }
         return await this.sendRequest(url, request);
     }
@@ -73,7 +73,7 @@ export default class AnkiController
             {
                 cards: cards
             },
-            version: AnkiConnectVersion
+            version: ANKI_CONNECT_VERSION
         }
         return await this.sendRequest(url, request);
     }
@@ -87,7 +87,7 @@ export default class AnkiController
             {
                 cards: cards
             },
-            version: AnkiConnectVersion
+            version: ANKI_CONNECT_VERSION
         }
         return await this.sendRequest(url, request);
     }
@@ -97,7 +97,7 @@ export default class AnkiController
         let request: AnkiRequest =
         {
             action: "deckNamesAndIds",
-            version: AnkiConnectVersion
+            version: ANKI_CONNECT_VERSION
         }
         return await this.sendRequest(url, request);
     }
@@ -111,7 +111,7 @@ export default class AnkiController
             {
                 deck: deck
             },
-            version: AnkiConnectVersion
+            version: ANKI_CONNECT_VERSION
         }
         this.sendRequest(url, request)
     }
@@ -131,7 +131,7 @@ export default class AnkiController
                     tags: tags
                 }
             },
-            version: AnkiConnectVersion
+            version: ANKI_CONNECT_VERSION
         }
         this.sendRequest(url, request)
     }

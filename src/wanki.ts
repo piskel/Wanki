@@ -1,4 +1,4 @@
-import { CardInfo, DeckList, IsoLanguage, ProcessedSentences, WordDetails } from "./typedef";
+import { CardInfo, DeckInfos, DeckList, IsoLanguage, ProcessedSentences, WordDetails } from "./typedef";
 import AnkiController from "./utils/ankiControler";
 
 

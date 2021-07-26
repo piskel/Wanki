@@ -1,4 +1,4 @@
-import { tagWhitelist } from "../config";
+import { TAG_WHITELIST } from "../config";
 import { IsoLanguage, WordDetails } from "../typedef";
 
 /**
@@ -42,7 +42,7 @@ export default class WankiContent
         let sentenceList: string[] = []
         let sentenceNo = 0
 
-        tagWhitelist.forEach(tagName =>
+        TAG_WHITELIST.forEach(tagName =>
         {
             let elementList = Array.from(document.getElementsByTagName(tagName));
             elementList.forEach(element =>
