@@ -11,7 +11,7 @@ export interface AnkiRequest
 
 export interface AnkiResult
 {
-    result: any[];
+    result: any;
     error: string | null;
 }
 
