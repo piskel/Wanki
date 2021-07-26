@@ -49,7 +49,7 @@ export default class Wanki
      * @param sentenceSegmenter A function that segments the sentences appropriately depending on the language.
      * @returns A list of segmented sentences and data for all the words.
      */
-    async processSentences(sentenceList: string[], language: IsoLanguage, sentenceSegmenter: SentenceSegmenter)
+    async processSentences(sentenceList: string[], language: IsoLanguage)
     {
         let deconstructed: string[][] = []
         let wordSet: Set<string> = new Set()

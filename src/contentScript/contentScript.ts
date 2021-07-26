@@ -1,99 +1,11 @@
 import { TAG_WHITELIST } from "../config";
 import { ExtensionMessage, ProcessedSentences, WordDetails } from "../typedef";
-
+import WankiContent, { chineseScrapper } from "./wankiContent";
 
 console.log("Content script started");
 
-var pageWordData: { [key: string]: WordDetails } = {}
 
-// TODO: Add support for returning subtags (lang+script+region)
-function getISOCode()
-{
-    let isoCode = document.getElementsByTagName("html")[0].lang;
-    let subtags = isoCode.split('-');
-    return subtags[0];
-}
-
-function addWordTags(segmentedSentences: string[][])
-{
-    let wordNo = 0
-    for (let i = 0; i < segmentedSentences.length; i++)
-    {
-        let segmentedSentence = segmentedSentences[i]
-        let sentenceElement = document.getElementById(`wanki_sentence_${i}`);
-
-        if (sentenceElement == null) continue;
-
-        let reconstructedSentence = ""
-        segmentedSentence.forEach(word =>
-        {
-            reconstructedSentence += `<span class="wanki wanki_word wanki_word_${word}">${word}</span>`;
-            
-            wordNo++;
-        });
-        // TODO: Error handling if the sentence tag is not found
-        sentenceElement!.innerHTML = reconstructedSentence;
-    }
-}
-
-
-function preparePage()
-{
-    let sentenceList: string[] = []
-    let sentenceNo = 0
-
-    TAG_WHITELIST.forEach(tagName =>
-    {
-        let elementList = document.getElementsByTagName(tagName);
-
-        for (let i = 0; i < elementList.length; i++)
-        {
-            let element = elementList.item(i)
-            
-            // TODO: Check for better filtering when tag has child node
-            if (element == null || element.children.length != 0 || element.textContent == null || element.classList.contains("wanki")) continue;
-
-            // TODO: Are those two lines bellow really useful ??
-            let matches = element.textContent.match(/[\u4E00-\u9FA5]+/g)
-            if (matches == null) continue;
-
-            element.innerHTML = element.textContent.replace(/[\u4E00-\u9FA5]+/g, a => 
-            {
-                sentenceList[sentenceNo] = a
-                let result = `<span class="wanki wanki_sentence" id="wanki_sentence_${sentenceNo}">${a}</span>`
-                
-                sentenceNo++;
-                return result;
-
-            });
-        }
-    });
-    return sentenceList;
-}
-
-function setTagColor(wordData: { [key: string]: WordDetails })
-{
-    for (let key in wordData)
-    {
-        let wordTags = Array.from(document.getElementsByClassName(`wanki_word_${key}`))
-
-        let style = ''
-
-        // Word is in deck
-        if(wordData[key].isInDeck)
-        {
-            style += 'color:green;'
-        }
-        else
-        {
-            style += 'color:gray;'
-        }
-
-        wordTags.forEach(tag => {
-            tag.setAttribute("style", style)
-        });
-    }
-}
+var wankiContent = new WankiContent();
 
 
 function messageListener(message: ExtensionMessage, port: chrome.runtime.Port)
@@ -104,14 +16,10 @@ function messageListener(message: ExtensionMessage, port: chrome.runtime.Port)
     {
         case 'process_sentences_result':
             let processed = message.data as ProcessedSentences;
-
-            pageWordData = processed.wordData;
-            addWordTags(processed.deconstructed)
-            setTagColor(processed.wordData)
+            wankiContent.wordDetailsList = processed.wordData;
+            wankiContent.injectWordTags(processed.deconstructed)
+            wankiContent.setTagStyle()
             break;
-
-        // case 'get_word_data':
-        //     port.postMessage({method: 'get_word_data_result', data:pageWordData, sender:"content", target:message.sender} as ExtensionMessage)
 
         default:
             break;
@@ -125,8 +33,8 @@ function popupMessageListener(message:ExtensionMessage, sender: chrome.runtime.M
 
     switch (message.method) {
         case 'get_word_data':
-            console.log("Sending word data to popup : ", pageWordData)
-            sendResponse({method:'get_word_data_result', data:pageWordData})
+            console.log("Sending word data to popup : ", wankiContent.wordDetailsList)
+            sendResponse({method:'get_word_data_result', data:wankiContent.wordDetailsList})
             break;
     
         default:
@@ -137,7 +45,7 @@ function popupMessageListener(message:ExtensionMessage, sender: chrome.runtime.M
 
 function contentScriptInit()
 {
-    let sentenceList = preparePage()
+    let sentenceList = wankiContent.preparePage(chineseScrapper)
     if(sentenceList.length == 0) return;
     
     let port = chrome.runtime.connect({ name: "wanki" });

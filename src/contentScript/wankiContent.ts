@@ -7,7 +7,7 @@ import { IsoLanguage, WordDetails } from "../typedef";
 type SentenceScrapper = (element: Element, callback: (sentence: string) => string) => void;
 
 
-let chineseScrapper: SentenceScrapper = (element, callback) =>
+export let chineseScrapper: SentenceScrapper = (element, callback) =>
 {
     element.innerHTML = element.textContent!.replace(/[\u4E00-\u9FA5]+/g, callback);
 }
@@ -18,6 +18,11 @@ export default class WankiContent
 
 
     constructor() { }
+
+
+    /////////////////////////////////////////////////////////////
+    // DOM MANIPULATION FUNCTION ////////////////////////////////
+    /////////////////////////////////////////////////////////////
 
     /**
      * Finds language information from the html tag
@@ -50,8 +55,7 @@ export default class WankiContent
                 // Element filter
                 if (element == null || element.children.length != 0 || element.textContent == null || element.classList.contains("wanki")) return;
 
-                // sentenceScrapper(element, sentence =>
-                chineseScrapper(element, sentence =>
+                sentenceScrapper(element, sentence =>
                 {
                     sentenceList[sentenceNo] = sentence
                     sentenceNo++;
@@ -60,6 +64,26 @@ export default class WankiContent
             });
         });
         return sentenceList;
+    }
+
+    injectWordTags(segmentedSentences: string[][])
+    {
+        let wordNo = 0
+        for (let i = 0; i < segmentedSentences.length; i++)
+        {
+            let sentenceElement = document.getElementById(`wanki_sentence_${i}`);
+
+            if (sentenceElement == null) continue;
+
+            let reconstructedSentence = ""
+            segmentedSentences[i].forEach(word =>
+            {
+                reconstructedSentence += `<span class="wanki wanki_word wanki_word_${word}">${word}</span>`;
+                wordNo++;
+            });
+            // TODO: Error handling if the sentence tag is not found
+            sentenceElement!.innerHTML = reconstructedSentence;
+        }
     }
 
     /**
@@ -89,4 +113,21 @@ export default class WankiContent
             });
         }
     }
+    
+    /////////////////////////////////////////////////////////////
+    // WORD STATISTICS FUNCTIONS ////////////////////////////////
+    /////////////////////////////////////////////////////////////
+
+    /**
+     * Returns a sorted list of words details by their frequency
+     * @returns 
+     */
+    getSortedWordDetailsList()
+    {   
+        let wordDetailsList = this.wordDetailsList
+        return Object.keys(wordDetailsList).map(key => {
+            return wordDetailsList[key];
+        });
+    }
+
 }
