@@ -125,9 +125,14 @@ export default class WankiContent
     getSortedWordDetailsList()
     {   
         let wordDetailsList = this.wordDetailsList
-        return Object.keys(wordDetailsList).map(key => {
+        let items = Object.keys(wordDetailsList).map(key => {
             return wordDetailsList[key];
         });
+        items.sort((first, second) =>
+        {
+            return (second as WordDetails).frequency - (first as WordDetails).frequency;
+        })
+        return items;
     }
 
 }
