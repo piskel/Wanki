@@ -1,3 +1,4 @@
+import { ANKI_CONNECT_VERSION } from "./config";
 import { CardInfo, DeckInfos, DeckList, IsoLanguage, ProcessedSentences, WordDetails } from "./typedef";
 import AnkiController from "./utils/ankiControler";
 
@@ -116,6 +117,16 @@ export default class Wanki
     /////////////////////////////////////////////////////////////
     // CONFIGURATION METHODS ////////////////////////////////////
     /////////////////////////////////////////////////////////////
+
+    /**
+     * Returns if Anki Connect is available
+     * @returns true if Anki Connect is available
+     */
+    async checkAnkiConnectConnection()
+    {
+        let response = await AnkiController.version(this.ankiConnectUrl)
+        return response.error == null && response.result == ANKI_CONNECT_VERSION;
+    }
 
     /**
      * Checks if there is any missing deck in Anki compared to the extension's configuration.
