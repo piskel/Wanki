@@ -22,6 +22,9 @@ export interface DeckInfos
     field: string
 }
 
+// FIXME: Can't specify language as IsoLanguage type
+export interface DeckList { [language: string]: DeckInfos }
+
 export interface WankiConfiguration
 {
     ankiConnect:

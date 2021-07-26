@@ -1,5 +1,6 @@
-import { CardInfo, ExtensionMessage, ProcessedSentences, WankiConfiguration, WordDetails } from "./typedef";
+import { CardInfo, DeckInfos, DeckList, ExtensionMessage, ProcessedSentences, WankiConfiguration, WordDetails } from "./typedef";
 import AnkiController from "./utils/ankiControler";
+import Wanki from "./wanki";
 
 console.log("Background script started")
 var hanzi = require('hanzi');

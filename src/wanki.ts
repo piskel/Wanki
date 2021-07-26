@@ -1,18 +1,8 @@
-import { CardInfo, IsoLanguage, ProcessedSentences, WordDetails } from "./typedef";
+import { CardInfo, DeckList, IsoLanguage, ProcessedSentences, WordDetails } from "./typedef";
 import AnkiController from "./utils/ankiControler";
 
 
 type SentenceSegmenter = (sentence:string) => string[];
-
-interface DeckInfos 
-{
-    name: string,
-    language: IsoLanguage,
-    field: string
-}
-
-// FIXME: Can't specify language as IsoLanguage type
-interface DeckList { [language: string]: DeckInfos }
 
 
 // let chineseSentenceSegmenter: SentenceSegmenter = (sentence)=>
@@ -129,7 +119,8 @@ export default class Wanki
 
     async checkDeckCoherence()
     {
-        // AnkiController.deckNamesAndIds
+        let results = await AnkiController.deckNamesAndIds(this.ankiConnectUrl);
+        console.log(results)
         for(let lang in this.deckList)
         {
             let deck = this.deckList[lang]
