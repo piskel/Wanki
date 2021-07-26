@@ -117,15 +117,21 @@ export default class Wanki
     // CONFIGURATION METHODS ////////////////////////////////////
     /////////////////////////////////////////////////////////////
 
-    async checkDeckCoherence()
+    /**
+     * Checks if there is any missing deck in Anki compared to the extension's configuration.
+     * @returns List of missing decks.
+     */
+    async getMissingDecks()
     {
-        let results = await AnkiController.deckNamesAndIds(this.ankiConnectUrl);
-        console.log(results)
+        let ankiDecks = (await AnkiController.deckNamesAndIds(this.ankiConnectUrl)).result;
+        let missingDecks: DeckList = {}
+
         for(let lang in this.deckList)
-        {
-            let deck = this.deckList[lang]
-            
-        }
+            if(!(this.deckList[lang].name in ankiDecks))
+            {
+                missingDecks[lang] = this.deckList[lang]
+            }
+        return missingDecks;
     }
 
 }
