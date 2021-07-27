@@ -60,7 +60,10 @@ export default class Wanki
         {
 
             // let wordList = sentenceSegmenter(sentence)
-            let wordList: string[] = this.hanzi.segment(sentence)
+            let wordList: string[] = []
+            this.hanzi.segment(sentence).forEach((word:string) => {
+                wordList.push(this.hanzi.definitionLookup(word)[0]['traditional'])
+            });
             deconstructed.push(wordList);
 
             wordList.forEach(word =>
