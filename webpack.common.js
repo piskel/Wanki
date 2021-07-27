@@ -32,7 +32,8 @@ module.exports = {
         { from: './src/images/get_started16.png', to: 'images' },
         { from: './src/images/get_started32.png', to: 'images' },
         { from: './src/images/get_started48.png', to: 'images' },
-        { from: './src/images/get_started128.png', to: 'images' }
+        { from: './src/images/get_started128.png', to: 'images' },
+        { from: './src/popup/style.css', to: 'popup' }
       ],
     }),
   ],

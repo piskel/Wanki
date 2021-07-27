@@ -16,6 +16,7 @@ function messageListener(message: ExtensionMessage, port: chrome.runtime.Port)
     {
         case 'process_sentences_result':
             let processed = message.data as ProcessedSentences;
+            console.table(processed.wordData)
             wankiContent.wordDetailsList = processed.wordData;
             wankiContent.injectWordTags(processed.deconstructed)
             wankiContent.setTagStyle()
@@ -28,13 +29,13 @@ function messageListener(message: ExtensionMessage, port: chrome.runtime.Port)
 
 function popupMessageListener(message:ExtensionMessage, sender: chrome.runtime.MessageSender, sendResponse: (response?: ExtensionMessage) => void)
 {
-
+    
     console.log("Received message from popup ", message)
-
+    console.log(sender)
     switch (message.method) {
         case 'get_word_data':
             console.log("Sending word data to popup : ", wankiContent.wordDetailsList)
-            sendResponse({method:'get_word_data_result', data:wankiContent.wordDetailsList})
+            sendResponse({method:'get_word_data_result', data:wankiContent.getSortedWordDetailsList()})
             break;
     
         default:

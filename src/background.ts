@@ -62,6 +62,8 @@ function backgroundScriptInit()
     storageCache = result as WankiConfiguration;
     
     wanki = new Wanki(storageCache.ankiConnect.hostname, storageCache.ankiConnect.port, storageCache.deckList)
+    wanki.addWordToDeck("的")
+    
     chrome.runtime.onConnect.addListener(onConnectListener);
   });
 }
