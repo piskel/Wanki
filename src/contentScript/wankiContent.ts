@@ -97,14 +97,15 @@ export default class WankiContent
 
 
             // Style if word is not in deck
-            let style = 'color:gray;'
+            let style = 'background-color: rgb(220, 220, 220)'
 
             // If word is in deck
             if (this.wordDetailsList[key].isInDeck)
             {
-                // TODO: Change color depending on how well the word is know
-                // ...
-                style = 'color:green;'
+                // hue: red = 0°, yellow = 60°, green = 130°
+                let hue = 60 + this.wordDetailsList[key].interval * 5
+
+                style = `background-color: hsl(${hue}, 100%, 80%)`
             }
 
             wordTags.forEach(tag =>
@@ -113,7 +114,7 @@ export default class WankiContent
             });
         }
     }
-    
+
     /////////////////////////////////////////////////////////////
     // WORD STATISTICS FUNCTIONS ////////////////////////////////
     /////////////////////////////////////////////////////////////
@@ -123,9 +124,10 @@ export default class WankiContent
      * @returns 
      */
     getSortedWordDetailsList()
-    {   
+    {
         let wordDetailsList = this.wordDetailsList
-        let items = Object.keys(wordDetailsList).map(key => {
+        let items = Object.keys(wordDetailsList).map(key =>
+        {
             return wordDetailsList[key];
         });
         items.sort((first, second) =>

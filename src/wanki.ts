@@ -61,9 +61,11 @@ export default class Wanki
 
             // let wordList = sentenceSegmenter(sentence)
             let wordList: string[] = []
-            this.hanzi.segment(sentence).forEach((word:string) => {
-                wordList.push(this.hanzi.definitionLookup(word)[0]['traditional'])
-            });
+
+            // this.hanzi.segment(sentence).forEach((word:string) => {
+            //     wordList.push(this.hanzi.definitionLookup(word)[0]['traditional'])
+            // });
+            wordList = this.hanzi.segment(sentence);
             deconstructed.push(wordList);
 
             wordList.forEach(word =>
@@ -146,6 +148,12 @@ export default class Wanki
                 missingDecks[lang] = this.deckList[lang]
             }
         return missingDecks;
+    }
+
+    async addWordToDeck(word: string)
+    {
+        let result = this.hanzi.definitionLookup(word);
+        console.table(result)
     }
 
 }
