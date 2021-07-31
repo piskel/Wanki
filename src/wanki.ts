@@ -152,15 +152,18 @@ export default class Wanki
 
     async addWordToDeck(word: string)
     {
-        let result = this.hanzi.definitionLookup(word)[0];
 
         // TODO: Hard coded for Chinese deck. Make this language specific
 
+        let result = this.hanzi.definitionLookup(word);
+        
+        if(result == undefined) return;
+        
         let fields = {
-            "Traditional": result['traditional'],
-            "Simplified": result['simplified'],
-            "Pinyin": result['pinyin'],
-            "Meaning": result['definition']
+            "Traditional": result[0]['traditional'],
+            "Simplified": result[0]['simplified'],
+            "Pinyin": result[0]['pinyin'],
+            "Meaning": result[0]['definition']
         }
         console.log(result)
         console.log(fields)
