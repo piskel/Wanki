@@ -12,6 +12,18 @@ chrome.runtime.onInstalled.addListener(() =>
 {
   chrome.storage.sync.clear(); // WARNING!!! This might require the user to reenter their info after every update
   chrome.storage.sync.set(INIT_WANKI_CONFIG);
+
+
+  chrome.contextMenus.create({'title':"Add word to Anki", "id":"add_to_anki", contexts:["selection"]});
+
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab)=>
+{
+  if(info.menuItemId != "add_to_anki" || info.selectionText == undefined) return;
+
+  wanki.addWordToDeck(info.selectionText);
+
 });
 
 
@@ -62,8 +74,7 @@ function backgroundScriptInit()
     storageCache = result as WankiConfiguration;
     
     wanki = new Wanki(storageCache.ankiConnect.hostname, storageCache.ankiConnect.port, storageCache.deckList)
-    wanki.addWordToDeck("的")
-    
+
     chrome.runtime.onConnect.addListener(onConnectListener);
   });
 }

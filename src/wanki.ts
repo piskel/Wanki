@@ -152,8 +152,20 @@ export default class Wanki
 
     async addWordToDeck(word: string)
     {
-        let result = this.hanzi.definitionLookup(word);
-        console.table(result)
+        let result = this.hanzi.definitionLookup(word)[0];
+
+        // TODO: Hard coded for Chinese deck. Make this language specific
+
+        let fields = {
+            "Traditional": result['traditional'],
+            "Simplified": result['simplified'],
+            "Pinyin": result['pinyin'],
+            "Meaning": result['definition']
+        }
+        console.log(result)
+        console.log(fields)
+
+        AnkiController.guiAddCards(this.ankiConnectUrl, this.deckList["zh"].name, "TITA Chinese", fields, {}, []);
     }
 
 }
