@@ -89,13 +89,12 @@ export default class WankiContent
     /**
      * Will change words appearances depending on their properties.
      */
+    // TODO: Will loop, use a different curve for color change
     setTagStyle()
     {
         for (let key in this.wordDetailsList)
         {
             let wordTags = Array.from(document.getElementsByClassName(`wanki_word_${key}`))
-
-
             // Style if word is not in deck
             let style = 'background-color: rgb(220, 220, 220)'
 

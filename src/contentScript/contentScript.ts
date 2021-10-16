@@ -37,7 +37,6 @@ function popupMessageListener(message:ExtensionMessage, sender: chrome.runtime.M
             console.log("Sending word data to popup : ", wankiContent.wordDetailsList)
             sendResponse({method:'get_word_data_result', data:wankiContent.getSortedWordDetailsList()})
             break;
-    
         default:
             break;
     }

@@ -15,8 +15,9 @@ chrome.runtime.onInstalled.addListener(() =>
 
 
   chrome.contextMenus.create({'title':"Add word to Anki", "id":"add_to_anki", contexts:["selection"]});
-
 });
+
+
 
 chrome.contextMenus.onClicked.addListener((info, tab)=>
 {
@@ -43,6 +44,10 @@ async function messageListener(message: ExtensionMessage, port: chrome.runtime.P
       let processed = await wanki.processSentences(message.data, "zh")
       port.postMessage({ method: 'process_sentences_result', data: processed } as ExtensionMessage)
       
+      break;
+
+    case 'add_word_to_deck':
+      wanki.addWordToDeck(message.data);
       break;
 
     default:

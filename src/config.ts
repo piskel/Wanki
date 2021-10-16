@@ -21,7 +21,7 @@ export let INIT_WANKI_CONFIG: WankiConfiguration =
   {
     "zh":
     {
-      name: "Chinese",
+      name: "Chinese::Chinese to English",
       language:"zh",
       field:"Traditional"
     }

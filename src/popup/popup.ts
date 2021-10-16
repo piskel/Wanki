@@ -6,11 +6,18 @@ let htmlTotalWordCount = document.getElementById("totalWordCount") as HTMLParagr
 let htmlPercentInDeck = document.getElementById("percentInDeck") as HTMLParagraphElement;
 let htmlPercentInDeckByFrequency = document.getElementById("percentInDeckByFrequency") as HTMLParagraphElement;
 let htmlTopWordsNotInDeck = document.getElementById("topWordsNotInDeck") as HTMLParagraphElement;
+let htmListButtonAddTopWord = document.getElementsByClassName("add_word") as HTMLCollectionOf<Element>
 
 // TODO: Add button to toggle word highlight
 
+function sendWordToDeck(word:string)
+{
+    let port = chrome.runtime.connect({ name: "wanki" });
+    port.postMessage({ method: "add_word_to_deck", data: word } as ExtensionMessage);
+    port.disconnect();
+}
 
-
+// TODO: Clean that mess
 function processWordStatistics(wordData: WordDetails[])
 {
     let topUnknownWords: WordDetails[] = []
@@ -46,10 +53,19 @@ function processWordStatistics(wordData: WordDetails[])
     let htmlNotInDeckTableData = "<tr><th>Word</th><th>Frequency</th></tr>"
     topNotInDeckWords.slice(0, 5).forEach((topWord) =>
     {
-        htmlNotInDeckTableData += `<tr><td>${topWord.word}</td><td>${topWord.frequency}</td></tr>`
+        htmlNotInDeckTableData += `<tr><td>${topWord.word}</td><td>${topWord.frequency}</td><td><button type="button" class="add_word" word="${topWord.word}">Add</button></td></tr>`
     })
     htmlTopWordsNotInDeck.innerHTML = htmlNotInDeckTableData
 
+
+    let addWordButtonList = document.getElementsByClassName('add_word') as HTMLCollectionOf<HTMLButtonElement>;
+
+    for(let i = 0; i < addWordButtonList.length; i++)
+        {
+            let addWordButton = addWordButtonList.item(i);
+            console.log(addWordButton);
+            addWordButton!.onclick = ()=>{sendWordToDeck(addWordButton?.getAttribute("word") as string)};
+        }
 }
 
 
@@ -64,6 +80,8 @@ async function init()
             processWordStatistics(response.data)
         });
     });
+
+
 }
 
 

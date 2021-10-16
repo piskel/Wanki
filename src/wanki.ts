@@ -168,7 +168,7 @@ export default class Wanki
         console.log(result)
         console.log(fields)
 
-        AnkiController.guiAddCards(this.ankiConnectUrl, this.deckList["zh"].name, "TITA Chinese", fields, {}, []);
+        AnkiController.guiAddCards(this.ankiConnectUrl, this.deckList["zh"].name, "Chinese", fields, {}, []);
     }
 
 }
