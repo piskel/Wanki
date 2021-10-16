@@ -158,12 +158,15 @@ export default class Wanki
         let result = this.hanzi.definitionLookup(word);
         
         if(result == undefined) return;
-        
+
+        let meaning = result[0]['definition'].replace('/', ' / ')
+
         let fields = {
             "Traditional": result[0]['traditional'],
             "Simplified": result[0]['simplified'],
             "Pinyin": result[0]['pinyin'],
-            "Meaning": result[0]['definition']
+            // "Meaning": result[0]['definition']
+            "Meaning": meaning
         }
         console.log(result)
         console.log(fields)
