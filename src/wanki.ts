@@ -159,7 +159,7 @@ export default class Wanki
         
         if(result == undefined) return;
 
-        let meaning = result[0]['definition'].replace('/', ' / ')
+        let meaning = result[0]['definition'].replace(/\//g, ' / ')
 
         let fields = {
             "Traditional": result[0]['traditional'],
