@@ -10,7 +10,7 @@ export default class AnkiController
     // NETWORK FUNCTIONS ////////////////////////////////////////
     /////////////////////////////////////////////////////////////
 
-    static async sendRequest(url:string, request: AnkiRequest)
+    static async sendRequest(url:string, request: AnkiRequest): Promise<AnkiResult>
     {
         var myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
@@ -23,10 +23,19 @@ export default class AnkiController
             body: raw,
             redirect: 'follow'
         };
-        let response = await fetch(url, requestOptions)
 
-        console.log("Sending request : ", request)
-        return await response.json() as AnkiResult;
+        let result: AnkiResult = {result:null, error:null};
+        try
+        {
+            let response = await fetch(url, requestOptions)
+            console.log("Sending request : ", request)
+            result = await response.json() as AnkiResult;
+        }
+        catch(e)
+        {
+            result.error = e as string;
+        }
+        return result;
     }
 
 
